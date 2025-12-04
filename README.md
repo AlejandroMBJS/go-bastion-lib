@@ -23,7 +23,12 @@
 To add `goBastion Lib` to your Go project, use the `go get` command:
 
 ```bash
+//external
+go get github.com/golang-jwt/jwt/v5
+go get golang.org/x/crypto/bcrypt
+bastion
 go get github.com/alejandrombjs/go-bastion-lib
+go mod tidy
 ```
 
 ### Minimal API Example
