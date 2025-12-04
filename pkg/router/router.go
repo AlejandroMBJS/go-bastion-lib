@@ -104,24 +104,29 @@ func (r *Router) PATCH(path string, h Handler) {
 
 // Handler returns the HTTP handler for the router.
 func (r *Router) Handler() http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
-		ctx := NewContext(w, req)
+    return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+        ctx := NewContext(w, req)
 
-		// Apply middlewares to the handler chain
-		handler := r.findRoute(req.Method, req.URL.Path)
-		if handler == nil {
-			// Check if it's a method not allowed or not found
-			if r.isPathRegistered(req.URL.Path) {
-				r.methodNotAllowed(ctx)
-			} else {
-				r.notFound(ctx)
-			}
-			return
-		}
+        match := r.findRoute(req.Method, req.URL.Path)
+        if match.handler == nil {
+            // Check if it's a method-not-allowed or a true 404
+            if r.isPathRegistered(req.URL.Path) {
+                r.methodNotAllowed(ctx)
+            } else {
+                r.notFound(ctx)
+            }
+            return
+        }
 
-		handler(ctx)
-	})
+        // inject path params into context
+        for k, v := range match.params {
+            ctx.params[k] = v
+        }
+
+        match.handler(ctx)
+    })
 }
+
 
 // addRoute adds a route with the given method and path.
 func (r *Router) addRoute(method, path string, h Handler) {
