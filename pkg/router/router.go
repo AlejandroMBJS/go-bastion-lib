@@ -69,6 +69,19 @@ func (r *Router) Group(prefix string) *Router {
 		methodNotAllowed: r.methodNotAllowed,
 	}
 }
+// SetNotFound allows applications to override the default 404 handler.
+func (r *Router) SetNotFound(h Handler) {
+    r.mu.Lock()
+    defer r.mu.Unlock()
+    r.notFound = h
+}
+
+// SetMethodNotAllowed allows applications to override the default 405 handler.
+func (r *Router) SetMethodNotAllowed(h Handler) {
+    r.mu.Lock()
+    defer r.mu.Unlock()
+    r.methodNotAllowed = h
+}
 
 // Use registers middleware that will be applied to all routes in this group.
 func (r *Router) Use(mw ...Middleware) {
