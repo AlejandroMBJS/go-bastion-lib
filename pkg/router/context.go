@@ -25,7 +25,11 @@ func NewContext(w http.ResponseWriter, r *http.Request) *Context {
         statusCode: http.StatusOK,
     }
 }
-
+// StatusCode returns the HTTP status code that was written for this request.
+// By default it's http.StatusOK unless changed via c.Status(...) or helpers.
+func (c *Context) StatusCode() int {
+    return c.statusCode
+}
 func (c *Context) Request() *http.Request {
     return c.req
 }
