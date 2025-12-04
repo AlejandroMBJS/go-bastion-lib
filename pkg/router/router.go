@@ -162,18 +162,22 @@ func (r *Router) findRoute(method, path string) routeMatch {
 
 // isPathRegistered checks if a path is registered (for any method).
 func (r *Router) isPathRegistered(path string) bool {
-	r.mu.RLock()
-	defer r.mu.RUnlock()
+    r.mu.RLock()
+    defer r.mu.RUnlock()
 
-	methods := []string{http.MethodGet, http.MethodPost, http.MethodPut,
-		http.MethodDelete, http.MethodPatch}
-	for _, method := range methods {
-		if r.tree.find(method, path) != nil {
-			return true
-		}
-	}
-	return false
+    if r.tree == nil {
+        return false
+    }
+
+    methods := []string{http.MethodGet, http.MethodPost, http.MethodPut, http.MethodDelete, http.MethodPatch}
+    for _, method := range methods {
+        if match := r.tree.find(method, path); match.handler != nil {
+            return true
+        }
+    }
+    return false
 }
+
 
 // node methods
 func (n *node) insert(method, path string, handler Handler) {
