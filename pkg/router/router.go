@@ -10,6 +10,12 @@ import (
 // Handler is the function signature for HTTP handlers.
 type Handler func(ctx *Context)
 
+type routeMatch struct {
+    handler Handler
+    params  map[string]string
+}
+
+
 // Middleware is a function that wraps a Handler.
 type Middleware func(Handler) Handler
 
@@ -205,36 +211,52 @@ func (n *node) insertRecursive(method string, segments []string, handler Handler
 	child.insertRecursive(method, segments[1:], handler)
 }
 
-func (n *node) find(method, path string) Handler {
-	segments := strings.Split(strings.Trim(path, "/"), "/")
-	params := make(map[string]string)
-	return n.findRecursive(method, segments, params)
+// find returns the handler for a method+path and any path parameters.
+func (n *node) find(method, path string) routeMatch {
+    segments := strings.Split(strings.Trim(path, "/"), "/")
+    params := make(map[string]string)
+
+    h := n.findRecursive(method, segments, params)
+    if h == nil {
+        return routeMatch{}
+    }
+
+    return routeMatch{
+        handler: h,
+        params:  params,
+    }
 }
 
 func (n *node) findRecursive(method string, segments []string, params map[string]string) Handler {
-	if len(segments) == 0 {
-		if n.handlers == nil {
-			return nil
-		}
-		return n.handlers[method]
-	}
+    if len(segments) == 0 {
+        if n.handlers == nil {
+            return nil
+        }
+        return n.handlers[method]
+    }
 
-	segment := segments[0]
+    segment := segments[0]
 
-	// Try to find exact match first
-	for _, child := range n.children {
-		if !child.isParam && child.path == segment {
-			return child.findRecursive(method, segments[1:], params)
-		}
-	}
+    // 1) exact match first
+    for _, child := range n.children {
+        if !child.isParam && child.path == segment {
+            if h := child.findRecursive(method, segments[1:], params); h != nil {
+                return h
+            }
+        }
+    }
 
-	// Try parameter match
-	for _, child := range n.children {
-		if child.isParam {
-			params[child.paramName] = segment
-			return child.findRecursive(method, segments[1:], params)
-		}
-	}
+    // 2) then param match
+    for _, child := range n.children {
+        if child.isParam {
+            params[child.paramName] = segment
+            if h := child.findRecursive(method, segments[1:], params); h != nil {
+                return h
+            }
+        }
+    }
 
-	return nil
+    return nil
+}
+
 }
