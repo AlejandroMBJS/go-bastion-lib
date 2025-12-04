@@ -143,12 +143,17 @@ func (r *Router) addRoute(method, path string, h Handler) {
 }
 
 // findRoute finds a handler for the given method and path.
-func (r *Router) findRoute(method, path string) Handler {
-	r.mu.RLock()
-	defer r.mu.RUnlock()
+func (r *Router) findRoute(method, path string) routeMatch {
+    r.mu.RLock()
+    defer r.mu.RUnlock()
 
-	return r.tree.find(method, path)
+    if r.tree == nil {
+        return routeMatch{}
+    }
+
+    return r.tree.find(method, path)
 }
+
 
 // isPathRegistered checks if a path is registered (for any method).
 func (r *Router) isPathRegistered(path string) bool {
