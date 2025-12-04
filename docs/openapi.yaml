@@ -1,0 +1,439 @@
+openapi: 3.0.0
+info:
+  title: Go Bastion Library API
+  description: A pure backend JSON framework built with security and developer experience in mind.
+  version: 1.0.0
+servers:
+  - url: http://localhost:9876
+    description: Local Development Server
+
+tags:
+  - name: Health
+    description: Service health checks
+  - name: Authentication
+    description: User authentication and JWT management
+  - name: Users
+    description: User management operations
+
+paths:
+  /api/health:
+    get:
+      tags:
+        - Health
+      summary: Health Check
+      description: Checks the health and availability of the service.
+      operationId: getHealth
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+        '429':
+          description: Too Many Requests
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorRateLimit'
+      security: [] # No JWT required
+
+  /api/auth/login:
+    post:
+      tags:
+        - Authentication
+      summary: User Login
+      description: Authenticates a user and returns a JWT token.
+      operationId: loginUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Successful login, returns JWT token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '400':
+          description: Invalid request body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Too Many Requests
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorRateLimit'
+        '500':
+          description: Internal server error (e.g., token generation failure)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security: [] # No JWT required for login
+
+  /api/users:
+    get:
+      tags:
+        - Users
+      summary: List Users
+      description: Retrieves a list of users. Requires JWT authentication.
+      operationId: listUsers
+      responses:
+        '200':
+          description: A list of users
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserListResponse'
+        '401':
+          description: Unauthorized (missing, invalid, or expired JWT)
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/ErrorUnauthorized'
+                  - $ref: '#/components/schemas/ErrorTokenExpired'
+                  - $ref: '#/components/schemas/ErrorUserClaimsNotFound'
+        '429':
+          description: Too Many Requests
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorRateLimit'
+      security:
+        - bearerAuth: []
+    post:
+      tags:
+        - Users
+      summary: Create User
+      description: Creates a new user. Requires JWT authentication.
+      operationId: createUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateUserRequest'
+      responses:
+        '201':
+          description: User created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateUserResponse'
+          headers:
+            Location:
+              description: URL of the newly created user
+              schema:
+                type: string
+                format: uri
+        '400':
+          description: Invalid request body or validation error
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/ErrorInvalidRequest'
+                  - $ref: '#/components/schemas/ErrorValidationError'
+        '401':
+          description: Unauthorized (missing, invalid, or expired JWT)
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/ErrorUnauthorized'
+                  - $ref: '#/components/schemas/ErrorTokenExpired'
+        '429':
+          description: Too Many Requests
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorRateLimit'
+        '500':
+          description: Internal server error (e.g., password hashing failure)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+        - bearerAuth: []
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    # CSRF is handled via cookie and header, not directly in OpenAPI security schemes
+    # as it's a middleware concern rather than an auth scheme for the API itself.
+
+  schemas:
+    HealthResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: ok
+        timestamp:
+          type: string
+          format: date-time
+          example: '2025-12-04T12:34:56Z'
+      required:
+        - status
+        - timestamp
+
+    LoginRequest:
+      type: object
+      properties:
+        username:
+          type: string
+          example: testuser
+        password:
+          type: string
+          format: password
+          example: testpass
+      required:
+        - username
+        - password
+
+    LoginResponse:
+      type: object
+      properties:
+        access_token:
+          type: string
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+        token_type:
+          type: string
+          example: bearer
+        expires_in:
+          type: integer
+          example: 900
+      required:
+        - access_token
+        - token_type
+        - expires_in
+
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        username:
+          type: string
+          example: john_doe
+        email:
+          type: string
+          format: email
+          example: john@example.com
+        role:
+          type: string
+          example: user
+      required:
+        - id
+        - username
+        - email
+        - role
+
+    UserClaims:
+      type: object
+      properties:
+        sub:
+          type: string
+          example: testuser
+        exp:
+          type: integer
+          example: 1733397296
+        iat:
+          type: integer
+          example: 1733396396
+        username:
+          type: string
+          example: testuser
+        role:
+          type: string
+          example: user
+      required:
+        - sub
+        - exp
+        - iat
+        - username
+        - role
+
+    UserListResponse:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            users:
+              type: array
+              items:
+                $ref: '#/components/schemas/User'
+            count:
+              type: integer
+              example: 2
+            requester:
+              $ref: '#/components/schemas/UserClaims'
+          required:
+            - users
+            - count
+            - requester
+      required:
+        - data
+
+    CreateUserRequest:
+      type: object
+      properties:
+        username:
+          type: string
+          example: newuser
+        email:
+          type: string
+          format: email
+          example: new@example.com
+        password:
+          type: string
+          format: password
+          example: securepassword123
+      required:
+        - username
+        - email
+        - password
+
+    CreateUserResponse:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            id:
+              type: integer
+              example: 3
+            username:
+              type: string
+              example: newuser
+            email:
+              type: string
+              format: email
+              example: new@example.com
+            message:
+              type: string
+              example: User created successfully
+            note:
+              type: string
+              example: Password hashed (not stored in response): $2a$10$...
+          required:
+            - id
+            - username
+            - email
+            - message
+            - note
+      required:
+        - data
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+              example: internal_error
+            message:
+              type: string
+              example: Failed to generate token
+          required:
+            - code
+            - message
+      required:
+        - error
+
+    ErrorInvalidRequest:
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+              example: invalid_request
+            message:
+              type: string
+              example: Invalid JSON body
+          required:
+            - code
+            - message
+      required:
+        - error
+
+    ErrorValidationError:
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+              example: validation_error
+            message:
+              type: string
+              example: All fields are required
+          required:
+            - code
+            - message
+      required:
+        - error
+
+    ErrorUnauthorized:
+      type: object
+      properties:
+        error:
+          type: string
+          example: unauthorized
+      required:
+        - error
+
+    ErrorTokenExpired:
+      type: object
+      properties:
+        error:
+          type: string
+          example: token_expired
+      required:
+        - error
+
+    ErrorUserClaimsNotFound:
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+              example: unauthorized
+            message:
+              type: string
+              example: User claims not found
+          required:
+            - code
+            - message
+      required:
+        - error
+
+    ErrorRateLimit:
+      type: object
+      properties:
+        error:
+          type: string
+          example: too_many_requests
+      required:
+        - error

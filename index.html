@@ -1,0 +1,2347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>goBastion Lib – Backend Framework Documentation</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom styles for better readability and aesthetics */
+        body {
+            font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        /* Configure Tailwind to use custom colors if needed, or stick to defaults */
+        /* For example, to use a custom indigo-like palette: */
+        :root {
+            --color-primary-50: #eef2ff;
+            --color-primary-100: #e0e7ff;
+            --color-primary-200: #c7d2fe;
+            --color-primary-300: #a5b4fc;
+            --color-primary-400: #818cf8;
+            --color-primary-500: #6366f1;
+            --color-primary-600: #4f46e5;
+            --color-primary-700: #4338ca;
+            --color-primary-800: #3730a3;
+            --color-primary-900: #312e81;
+            --color-primary-950: #1e1b4b;
+        }
+        .bg-primary-600 { background-color: var(--color-primary-600); }
+        .text-primary-600 { color: var(--color-primary-600); }
+        .hover\:bg-primary-700:hover { background-color: var(--color-primary-700); }
+        .border-primary-500 { border-color: var(--color-primary-500); }
+
+        .sidebar {
+            width: 280px;
+            flex-shrink: 0;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            overflow-y: auto;
+            scrollbar-width: none; /* Firefox */
+            -ms-overflow-style: none;  /* IE and Edge */
+        }
+        .sidebar::-webkit-scrollbar { /* Chrome, Safari, Opera */
+            display: none;
+        }
+        .content-area {
+            flex-grow: 1;
+            max-width: 1000px; /* Max width for content for better readability */
+            margin: 0 auto; /* Center content */
+            padding: 2rem;
+        }
+        .section-content {
+            display: none;
+            scroll-margin-top: 20px; /* Adjust for sticky header/nav if any */
+        }
+        .section-content.active {
+            display: block;
+        }
+        pre {
+            background-color: #1e293b; /* slate-800 */
+            color: #e2e8f0; /* slate-200 */
+            padding: 1rem;
+            border-radius: 0.5rem;
+            overflow-x: auto;
+            font-size: 0.875rem; /* text-sm */
+            line-height: 1.5;
+        }
+        code {
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+            background-color: #e2e8f0; /* slate-200 */
+            color: #1e293b; /* slate-800 */
+            padding: 0.2em 0.4em;
+            border-radius: 0.25rem;
+            font-size: 0.875rem;
+        }
+        pre code {
+            background-color: transparent;
+            color: inherit;
+            padding: 0;
+            border-radius: 0;
+        }
+        .active-link {
+            background-color: #4f46e5; /* indigo-600 */
+            color: #ffffff;
+            font-weight: 600;
+        }
+        .callout {
+            padding: 1rem;
+            border-left-width: 4px;
+            border-radius: 0.375rem;
+            margin-bottom: 1rem;
+        }
+        .callout-info {
+            border-color: #3b82f6; /* blue-500 */
+            background-color: #eff6ff; /* blue-50 */
+            color: #1e40af; /* blue-800 */
+        }
+        .callout-warning {
+            border-color: #f59e0b; /* yellow-500 */
+            background-color: #fffbeb; /* yellow-50 */
+            color: #92400e; /* yellow-800 */
+        }
+        .callout-danger {
+            border-color: #ef4444; /* red-500 */
+            background-color: #fef2f2; /* red-50 */
+            color: #991b1b; /* red-800 */
+        }
+        .do-dont-card {
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+        .do-card {
+            background-color: #dcfce7; /* green-100 */
+            border-left: 4px solid #22c55e; /* green-500 */
+        }
+        .dont-card {
+            background-color: #fee2e2; /* red-100 */
+            border-left: 4px solid #ef4444; /* red-500 */
+        }
+        .do-dont-card h4 {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        .do-dont-card p {
+            font-size: 0.875rem;
+        }
+        .example-card {
+            background-color: #1e293b; /* slate-800 */
+            border: 1px solid #334155; /* slate-700 */
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+        .example-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        .example-card .tags span {
+            background-color: #334155; /* slate-700 */
+            color: #94a3b8; /* slate-400 */
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        .example-card .stack-badges img {
+            height: 1.25rem; /* h-5 */
+            width: auto;
+        }
+    </style>
+</head>
+<body class="flex min-h-screen bg-slate-950 text-slate-200">
+    <aside class="sidebar bg-slate-900 text-slate-50 p-6 shadow-lg">
+        <div class="flex items-center mb-8">
+            <svg class="w-8 h-8 text-indigo-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg>
+            <h1 class="text-3xl font-bold text-indigo-400">goBastion Lib</h1>
+        </div>
+        <nav>
+            <ul class="space-y-2">
+                <li><a href="#overview" class="block py-2 px-4 rounded hover:bg-slate-700 transition-colors duration-200" data-section="overview">Overview</a></li>
+                <li><a href="#philosophy" class="block py-2 px-4 rounded hover:bg-slate-700 transition-colors duration-200" data-section="philosophy">Philosophy & Design Goals</a></li>
+                <li><a href="#installation" class="block py-2 px-4 rounded hover:bg-slate-700 transition-colors duration-200" data-section="installation">Installation & Quickstart</a></li>
+                <li><a href="#project-structure" class="block py-2 px-4 rounded hover:bg-slate-700 transition-colors duration-200" data-section="project-structure">Project Structure</a></li>
+                <li>
+                    <a href="#core-concepts" class="block py-2 px-4 rounded hover:bg-slate-700 transition-colors duration-200" data-section="core-concepts">Core Concepts</a>
+                    <ul class="ml-4 mt-1 space-y-1">
+                        <li><a href="#app-config" class="block py-2 px-4 rounded hover:bg-slate-700 text-sm transition-colors duration-200" data-section="app-config">App & Config</a></li>
+                        <li><a href="#router-context" class="block py-2 px-4 rounded hover:bg-slate-700 text-sm transition-colors duration-200" data-section="router-context">Router & Context</a></li>
+                        <li><a href="#middlewares" class="block py-2 px-4 rounded hover:bg-slate-700 text-sm transition-colors duration-200" data-section="middlewares">Middlewares</a></li>
+                        <li><a href="#error-handling" class="block py-2 px-4 rounded hover:bg-slate-700 text-sm transition-colors duration-200" data-section="error-handling">Error Handling & Responses</a></li>
+                    </ul>
+                </li>
+                <li><a href="#routing-guide" class="block py-2 px-4 rounded hover:bg-slate-700 transition-colors duration-200" data-section="routing-guide">Routing Guide</a></li>
+                <li><a href="#handlers-business-logic" class="block py-2 px-4 rounded hover:bg-slate-700 transition-colors duration-200" data-section="handlers-business-logic">Handlers & Business Logic</a></li>
+                <li><a href="#security-best-practices" class="block py-2 px-4 rounded hover:bg-slate-700 transition-colors duration-200" data-section="security-best-practices">Security Best Practices</a></li>
+                <li><a href="#api-style-guide" class="block py-2 px-4 rounded hover:bg-slate-700 transition-colors duration-200" data-section="api-style-guide">API Style Guide</a></li>
+                <li><a href="#examples-catalog" class="block py-2 px-4 rounded hover:bg-slate-700 transition-colors duration-200" data-section="examples-catalog">Examples Catalog</a></li>
+                <li><a href="#testing-tooling" class="block py-2 px-4 rounded hover:bg-slate-700 transition-colors duration-200" data-section="testing-tooling">Testing & Tooling</a></li>
+                <li><a href="#performance-deployment" class="block py-2 px-4 rounded hover:bg-slate-700 transition-colors duration-200" data-section="performance-deployment">Performance & Deployment</a></li>
+                <li>
+                    <a href="#for-different-levels" class="block py-2 px-4 rounded hover:bg-slate-700 transition-colors duration-200" data-section="for-different-levels">For Different Levels</a>
+                    <ul class="ml-4 mt-1 space-y-1">
+                        <li><a href="#junior-devs" class="block py-2 px-4 rounded hover:bg-slate-700 text-sm transition-colors duration-200" data-section="junior-devs">For Junior Devs</a></li>
+                        <li><a href="#mid-level-devs" class="block py-2 px-4 rounded hover:bg-slate-700 text-sm transition-colors duration-200" data-section="mid-level-devs">For Mid-Level Devs</a></li>
+                        <li><a href="#senior-devs" class="block py-2 px-4 rounded hover:bg-slate-700 text-sm transition-colors duration-200" data-section="senior-devs">For Senior Devs / Architects</a></li>
+                    </ul>
+                </li>
+                <li><a href="#faq-troubleshooting" class="block py-2 px-4 rounded hover:bg-slate-700 transition-colors duration-200" data-section="faq-troubleshooting">FAQ & Troubleshooting</a></li>
+                <li><a href="#changelog-roadmap" class="block py-2 px-4 rounded hover:bg-slate-700 transition-colors duration-200" data-section="changelog-roadmap">Changelog / Roadmap</a></li>
+            </ul>
+        </nav>
+    </aside>
+
+    <main class="content-area">
+        <!-- Hero Section -->
+        <section class="py-16 text-center bg-gradient-to-br from-slate-900 via-slate-950 to-slate-900 text-white rounded-2xl shadow-xl mb-12 border border-slate-800">
+            <h1 class="text-6xl font-extrabold mb-4 tracking-tight text-indigo-400">goBastion Lib</h1>
+            <p class="text-xl mb-8 max-w-3xl mx-auto text-slate-300">A robust, opinionated Go backend framework for building secure, high-performance JSON APIs with an emphasis on developer experience.</p>
+            <div class="flex justify-center flex-wrap gap-4 mb-10">
+                <span class="inline-flex items-center px-4 py-2 rounded-full text-sm font-medium bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">JSON-only</span>
+                <span class="inline-flex items-center px-4 py-2 rounded-full text-sm font-medium bg-green-500/20 text-green-300 border border-green-500/30">Secure by Default</span>
+                <span class="inline-flex items-center px-4 py-2 rounded-full text-sm font-medium bg-blue-500/20 text-blue-300 border border-blue-500/30">FastAPI-inspired DX</span>
+                <span class="inline-flex items-center px-4 py-2 rounded-full text-sm font-medium bg-purple-500/20 text-purple-300 border border-purple-500/30">Go-native Routing & Middleware</span>
+            </div>
+            <div class="space-x-4">
+                <a href="#installation" class="inline-flex items-center px-8 py-3 border border-transparent text-lg font-medium rounded-full shadow-lg text-white bg-indigo-600 hover:bg-indigo-700 transition-colors duration-200 transform hover:scale-105">
+                    Get Started
+                </a>
+                <a href="#examples-catalog" class="inline-flex items-center px-8 py-3 border border-indigo-400 text-lg font-medium rounded-full shadow-lg text-indigo-300 hover:bg-indigo-500/10 transition-colors duration-200 transform hover:scale-105">
+                    View Examples
+                </a>
+            </div>
+        </section>
+
+        <!-- Content Sections -->
+        <section id="overview" class="section-content active space-y-6">
+            <h2 class="text-4xl font-bold text-slate-100 mb-6">Overview</h2>
+            <p class="text-lg text-slate-300">The <code>goBastion Lib</code> is a meticulously crafted Go library designed to streamline the development of robust and secure JSON-based backend services. It provides a foundational framework that handles common web concerns like routing, middleware, and security, allowing developers to focus on their core business logic.</p>
+            <p class="text-lg text-slate-300">This library is built on the principle of being a **pure backend JSON framework**. This means it is specifically engineered for building HTTP JSON APIs that serve data to client-side applications (e.g., Single Page Applications, mobile apps, other microservices). It explicitly does not include any server-side HTML templating, tag-based views, or Server-Side Rendering (SSR) capabilities. Your frontend is expected to be managed separately.</p>
+            <h3 class="text-3xl font-semibold text-slate-200 mt-10 mb-4">What Problem Does it Solve?</h3>
+            <p class="text-slate-300">Building modern APIs often involves repetitive tasks: setting up routing, implementing middleware for concerns like logging and authentication, and ensuring security best practices. <code>goBastion Lib</code> abstracts away much of this boilerplate, providing a clear, opinionated structure that accelerates development while maintaining high standards for performance and security.</p>
+            <h3 class="text-3xl font-semibold text-slate-200 mt-10 mb-4">Where it Sits in Your Stack</h3>
+            <p class="text-slate-300"><code>goBastion Lib</code> is your HTTP API layer. It sits between your client applications and your business logic/data persistence layers. It's responsible for:</p>
+            <ul class="list-disc list-inside ml-4 space-y-2 text-slate-300">
+                <li>Receiving incoming HTTP requests.</li>
+                <li>Routing requests to the correct handler based on method and path.</li>
+                <li>Applying global and route-specific middleware (security, logging, etc.).</li>
+                <li>Parsing request bodies (JSON) and parameters.</li>
+                <li>Invoking your application's business logic.</li>
+                <li>Formatting and sending JSON responses.</li>
+            </ul>
+            <h3 class="text-3xl font-semibold text-slate-200 mt-10 mb-4">Key Strengths</h3>
+            <ul class="list-disc list-inside ml-4 space-y-2 text-slate-300">
+                <li><strong>Opinionated Security Defaults:</strong> Sensible defaults for security headers, JWT, CSRF, and rate limiting are provided, making it easier to build secure applications out-of-the-box.</li>
+                <li><strong>Simple Router + Groups:</strong> An intuitive and performant routing system with support for route grouping, allowing for clean API organization.</li>
+                <li><strong>Explicit Middlewares, No Magic:</strong> Middleware application is clear and explicit, giving developers full control over the request processing pipeline.</li>
+                <li><strong>Developer Experience (DX):</strong> Designed with a focus on ease of use, clear error handling, and helpful context utilities to boost productivity.</li>
+                <li><strong>Lightweight and Performant:</strong> Built on Go's standard library <code>net/http</code>, ensuring minimal overhead and excellent performance characteristics.</li>
+            </ul>
+        </section>
+
+        <section id="philosophy" class="section-content space-y-6">
+            <h2 class="text-4xl font-bold text-slate-100 mb-6">Philosophy & Design Goals</h2>
+            <p class="text-lg text-slate-300">The design of <code>goBastion Lib</code> is guided by several core principles aimed at fostering efficient, secure, and maintainable backend development in Go.</p>
+
+            <h3 class="text-3xl font-semibold text-slate-200 mt-10 mb-4">1. Simplicity over Complexity</h3>
+            <p class="text-slate-300">We believe that a framework should empower, not overwhelm. <code>goBastion Lib</code> strives for a minimal API surface, making it easy to learn and use. It avoids excessive abstraction layers or complex dependency injection mechanisms, preferring Go's idiomatic approach to composition and clear function signatures. The goal is for developers to understand how the framework works under the hood, rather than treating it as a black box.</p>
+
+            <h3 class="text-3xl font-semibold text-slate-200 mt-10 mb-4">2. Security by Default</h3>
+            <p class="text-slate-300">Security is not an afterthought; it's baked into the core. The library provides robust, configurable security features like JWT authentication, CSRF protection, and security headers as first-class citizens. Sensible defaults are provided to guide developers towards secure practices, reducing the likelihood of common vulnerabilities.</p>
+
+            <h3 class="text-3xl font-semibold text-slate-200 mt-10 mb-4">3. Performance and Efficiency</h3>
+            <p class="text-slate-300">Leveraging Go's inherent performance characteristics, <code>goBastion Lib</code> is designed to be fast and efficient. It builds upon the standard library's <code>net/http</code>, ensuring low overhead and high throughput. The routing mechanism is optimized for speed, and middleware are designed to be performant without introducing unnecessary bottlenecks.</p>
+
+            <h3 class="text-3xl font-semibold text-slate-200 mt-10 mb-4">4. Developer Experience (DX)</h3>
+            <p class="text-slate-300">A great framework should make developers happy and productive. <code>goBastion Lib</code> aims for an intuitive and expressive API, inspired by the clarity of frameworks like FastAPI. Features like route grouping, a rich <code>Context</code> object, and clear error handling contribute to a smooth development workflow. The goal is to reduce cognitive load and allow developers to focus on solving business problems.</p>
+
+            <h3 class="text-3xl font-semibold text-slate-200 mt-10 mb-4">5. Opinionated but Flexible</h3>
+            <p class="text-slate-300">While <code>goBastion Lib</code> offers opinionated choices for common patterns (e.g., JSON-only APIs, specific middleware implementations), it remains flexible enough to adapt to diverse project needs. Developers can easily extend or replace components, integrate with other libraries, and tailor the framework to their specific requirements without fighting against it.</p>
+
+            <h3 class="text-3xl font-semibold text-slate-200 mt-10 mb-4">6. Pure JSON API Focus</h3>
+            <p class="text-slate-300">This library is unapologetically focused on building JSON-based HTTP APIs. It deliberately omits features related to server-side templating or view layers. This clear scope ensures that the library remains lean, performant, and perfectly suited for modern architectures involving decoupled frontends (SPAs, mobile apps) and backend services.</p>
+        </section>
+
+        <section id="installation" class="section-content space-y-6">
+            <h2 class="text-4xl font-bold text-slate-100 mb-6">Installation & Quickstart</h2>
+            <p class="text-lg text-slate-300">Getting started with <code>goBastion Lib</code> is straightforward. Follow these steps to set up your first API.</p>
+
+            <h3 class="text-3xl font-semibold text-slate-200 mt-10 mb-4">1. Installation</h3>
+            <p class="text-slate-300">To add <code>goBastion Lib</code> to your Go project, use the <code>go get</code> command:</p>
+            <pre><code class="language-bash">go get github.com/alejandrombjs/go-bastion-lib</code></pre>
+            <p class="text-slate-300">This command will download the library and add it as a dependency in your <code>go.mod</code> file.</p>
+
+            <h3 class="text-3xl font-semibold text-slate-200 mt-10 mb-4">2. Minimal Quickstart Application</h3>
+            <p class="text-slate-300">Create a file named <code>main.go</code> in your project's root directory (or within a <code>cmd/api/</code> folder for larger projects) and paste the following code:</p>
+            <pre><code class="language-go">package main
+
+import (
+    "log" // Used for logging fatal errors
+    "time" // Used for time.Now() in health check
+
+    // Import the core bastion library and its components
+    "github.com/alejandrombjs/go-bastion-lib/pkg/bastion"
+    "github.com/alejandrombjs/go-bastion-lib/pkg/middleware"
+    "github.com/alejandrombjs/go-bastion-lib/pkg/response"
+    "github.com/alejandrombjs/go-bastion-lib/pkg/router"
+)
+
+func main() {
+    // 1. Load Configuration:
+    //    Start with default configuration. You can override these via environment variables
+    //    or programmatically. For this example, we'll enable some security features.
+    cfg := bastion.DefaultConfig()
+    cfg.EnableJWT = true // Enable JWT authentication middleware
+    cfg.JWTSecret = "super-secret-jwt-key-that-is-at-least-32-bytes-long" // IMPORTANT: Change in production!
+    cfg.EnableRateLimit = true // Enable global rate limiting
+    cfg.EnableSecurityHeaders = true // Enable HTTP security headers
+    cfg.Port = 8080 // Set the server port
+
+    // 2. Create the Application Instance:
+    //    The App encapsulates the server and router.
+    app := bastion.NewApp(cfg)
+
+    // 3. Register Global Middlewares:
+    //    Middlewares are functions that process requests before they reach the handler.
+    //    They are applied in the order they are registered.
+    app.Use(
+        middleware.RequestID(), // Adds a unique ID to each request for tracing
+        middleware.DefaultLogging(), // Logs request details (method, path, status, duration)
+        middleware.DefaultRecovery(), // Catches panics and returns 500 Internal Server Error
+        middleware.SecurityHeaders(middleware.DefaultSecurityHeaders()), // Adds essential HTTP security headers
+    )
+
+    // 4. Conditionally Apply Rate Limiting Middleware:
+    //    Only apply if enabled in the configuration.
+    if cfg.EnableRateLimit {
+        app.Use(middleware.RateLimit(cfg.RateLimitRequests, cfg.RateLimitWindow))
+    }
+
+    // 5. Get the Router:
+    //    The router is where you define your API endpoints.
+    r := app.Router()
+
+    // 6. Define Public Routes:
+    //    These routes do not require authentication.
+    r.GET("/api/health", func(ctx *router.Context) {
+        // Use the response helper to send a JSON success response
+        response.JSON(ctx, 200, map[string]string{
+            "status":    "ok",
+            "timestamp": time.Now().Format(time.RFC3339),
+        })
+    })
+
+    // 7. Define Authentication Routes:
+    //    Group related routes under a common prefix.
+    authGroup := r.Group("/api/auth")
+    authGroup.POST("/login", func(ctx *router.Context) {
+        var loginReq struct {
+            Username string `json:"username"`
+            Password string `json:"password"`
+        }
+        if err := ctx.BindJSON(&loginReq); err != nil {
+            response.Error(ctx, 400, "invalid_request", "Invalid JSON body")
+            return
+        }
+        // In a real app, validate credentials against a database
+        if loginReq.Username == "testuser" && loginReq.Password == "testpass" {
+            // Generate a JWT token
+            token, err := security.GenerateAccessToken(
+                loginReq.Username,
+                15*time.Minute, // Token valid for 15 minutes
+                cfg.JWTSecret,
+                map[string]any{"role": "user"}, // Custom claims
+            )
+            if err != nil {
+                response.Error(ctx, 500, "internal_error", "Failed to generate token")
+                return
+            }
+            response.JSON(ctx, 200, map[string]any{
+                "access_token": token,
+                "token_type":   "bearer",
+                "expires_in":   900, // 15 minutes
+            })
+        } else {
+            response.Error(ctx, 401, "unauthorized", "Invalid credentials")
+        }
+    })
+
+    // 8. Define Protected Routes:
+    //    Apply JWT authentication middleware to a group of routes.
+    protectedApiGroup := r.Group("/api")
+    protectedApiGroup.Use(middleware.JWTAuth(cfg.JWTSecret)) // All routes in this group require JWT
+
+    protectedApiGroup.GET("/users", func(ctx *router.Context) {
+        // Access user claims from context (set by JWTAuth middleware)
+        claims, ok := ctx.Get("userClaims")
+        if !ok {
+            response.Error(ctx, 401, "unauthorized", "User claims not found")
+            return
+        }
+        response.Success(ctx, 200, map[string]any{
+            "message": "Welcome to protected user data!",
+            "user":    claims,
+            "data":    []string{"item1", "item2"},
+        })
+    })
+
+    // 9. Start the Server:
+    //    RunWithGracefulShutdown handles graceful termination on OS signals.
+    log.Printf("Server starting on port %d", cfg.Port)
+    if err := app.RunWithGracefulShutdown(); err != nil {
+        log.Fatalf("Server failed to start or shut down gracefully: %v", err)
+    }
+}
+</code></pre>
+
+            <h3 class="text-3xl font-semibold text-slate-200 mt-10 mb-4">3. Running Your Application</h3>
+            <p class="text-slate-300">Save the code above as <code>main.go</code>. Then, open your terminal in the same directory and run:</p>
+            <pre><code class="language-bash">go run main.go</code></pre>
+            <p class="text-slate-300">You should see output indicating the server has started, typically on port <code>8080</code> as configured in the example.</p>
+
+            <h3 class="text-3xl font-semibold text-slate-200 mt-10 mb-4">4. Testing Your First Endpoint with cURL</h3>
+            <p class="text-slate-300">With your server running, open another terminal and try hitting the health check endpoint:</p>
+            <pre><code class="language-bash">curl -v http://localhost:8080/api/health</code></pre>
+            <p class="text-slate-300">You should receive a <code>200 OK</code> response with a JSON body similar to:</p>
+            <pre><code class="language-json">{
+    "status": "ok",
+    "timestamp": "2025-12-04T12:34:56Z"
+}</code></pre>
+            <div class="callout callout-info bg-blue-900/20 border-blue-500 text-blue-200">
+                <h4>Note on Port</h4>
+                <p>The example uses port <code>8080</code>. If you change the <code>cfg.Port</code> value in <code>main.go</code>, remember to update your cURL commands accordingly.</p>
+            </div>
+        </section>
+
+        <section id="project-structure" class="section-content space-y-6">
+            <h2 class="text-4xl font-bold text-slate-100 mb-6">Project Structure</h2>
+            <p class="text-lg text-slate-300">Organizing your Go project effectively is crucial for maintainability and scalability. While <code>goBastion Lib</code> doesn't enforce a strict structure, here's a recommended layout that aligns with common Go practices and scales well for larger applications.</p>
+
+            <h3 class="text-3xl font-semibold text-slate-200 mt-10 mb-4">Recommended Application Layout</h3>
+            <p class="text-slate-300">This structure separates application entry points, internal logic, and external dependencies clearly.</p>
+            <pre><code class="language-text">my-go-app/
+├── cmd/
+│   └── api/
+│       └── main.go             # Main application entry point
+├── internal/
+│   ├── api/
+│   │   ├── handlers/
+│   │   ├── routes/
+│   │   └── middleware/
+│   ├── config/
+│   ├── services/
+│   ├── repository/
+│   └── models/
+├── pkg/                        # goBastion Lib itself (or other reusable libraries)
+│   ├── bastion/
+│   ├── router/
+│   ├── middleware/
+│   ├── security/
+│   └── response/
+├── scripts/                    # Automated API test scripts, deployment scripts
+│   └── test-api.sh
+├── docs/                       # API documentation (OpenAPI, static site)
+│   ├── openapi.yaml
+│   └── index.html
+├── examples/                   # Example usage of the goBastion Lib
+│   └── basic/
+│       └── main.go
+├── go.mod                      # Go module definition
+├── go.sum                      # Go module checksums
+└── README.md                   # Project README
+</code></pre>
+
+            <h3 class="text-3xl font-semibold text-slate-200 mt-10 mb-4">Explanation of Directories</h3>
+            <ul class="list-disc list-inside ml-4 space-y-2 text-slate-300">
+                <li><strong><code>cmd/</code>:</strong> Contains main packages for executable applications. Each subdirectory here should be a separate executable.
+                    <ul class="list-disc list-inside ml-8 mt-1">
+                        <li><strong><code>cmd/api/main.go</code>:</strong> This is where your <code>goBastion Lib</code> application is initialized, configured, global middleware are registered, and routes are defined. It's the entry point for your API server.</li>
+                    </ul>
+                </li>
+                <li><strong><code>internal/</code>:</strong> Private application and library code. This code is not intended to be imported by other applications or libraries outside of this repository.
+                    <ul class="list-disc list-inside ml-8 mt-1 space-y-1">
+                        <li><strong><code>internal/api/handlers/</code>:</strong> Houses your HTTP handler functions. These functions should be lean, focusing on parsing request input, calling your service layer, and formatting the HTTP response.</li>
+                        <li><strong><code>internal/api/routes/</code>:</strong> Contains the logic for defining and grouping your API routes. This helps keep <code>main.go</code> clean and separates routing concerns.</li>
+                        <li><strong><code>internal/api/middleware/</code>:</strong> For any custom middleware specific to your application, distinct from the generic ones provided by <code>goBastion Lib</code>.</li>
+                        <li><strong><code>internal/config/</code>:</strong> Application-specific configuration loading and parsing logic, if more complex than what <code>bastion.Config</code> offers.</li>
+                        <li><strong><code>internal/services/</code>:</strong> Your core business logic. This layer should be independent of the HTTP layer, containing domain rules, orchestrating data operations, and interacting with repositories.</li>
+                        <li><strong><code>internal/repository/</code>:</strong> Abstractions and implementations for data persistence (e.g., database access, external API clients).</li>
+                        <li><strong><code>internal/models/</code>:</strong> Data structures, DTOs (Data Transfer Objects), and domain models used across your internal layers.</li>
+                    </ul>
+                </li>
+                <li><strong><code>pkg/</code>:</strong> Public library code that's safe to be used by external applications. In this context, <code>goBastion Lib</code> itself resides here. If you were building a larger project that also exposed its own reusable components, they would go here.</li>
+                <li><strong><code>scripts/</code>:</strong> Utility scripts for development, testing, deployment, etc. (e.g., <code>test-api.sh</code>).</li>
+                <li><strong><code>docs/</code>:</strong> Documentation files, including OpenAPI specifications and the static documentation site.</li>
+                <li><strong><code>examples/</code>:</strong> Demonstrations of how to use the <code>goBastion Lib</code>.</li>
+                <li><strong><code>go.mod</code> / <code>go.sum</code>:</strong> Go module definition and dependency checksums.</li>
+                <li><strong><code>README.md</code>:</strong> The main project README.</li>
+            </ul>
+            <div class="callout callout-info bg-blue-900/20 border-blue-500 text-blue-200">
+                <h4>Why <code>internal/</code>?</h4>
+                <p>The <code>internal/</code> directory is a special Go convention. Packages within <code>internal/</code> cannot be imported by code outside the module. This enforces encapsulation and prevents unintended external dependencies on your application's private logic.</p>
+            </div>
+        </section>
+
+        <section id="core-concepts" class="section-content space-y-6">
+            <h2 class="text-4xl font-bold text-slate-100 mb-6">Core Concepts</h2>
+            <p class="text-lg text-slate-300">Understanding the fundamental building blocks of <code>goBastion Lib</code> is key to effectively using and extending the framework. This section delves into the core abstractions that power your API.</p>
+
+            <section id="app-config" class="space-y-6">
+                <h3 class="text-3xl font-semibold text-slate-200 mt-10 mb-4">App & Config</h3>
+                <p class="text-slate-300">The <code>App</code> and <code>Config</code> types are the entry point and central nervous system of your <code>goBastion Lib</code> application, respectively.</p>
+
+                <h4 class="text-2xl font-medium text-slate-300 mt-6 mb-3">The <code>App</code> Abstraction</h4>
+                <p class="text-slate-300">The <code>bastion.App</code> struct represents your entire web application. It encapsulates the HTTP server, the router, and manages the application's lifecycle, including graceful shutdown. You create an instance of <code>App</code> by passing a <code>bastion.Config</code> object to <code>bastion.NewApp()</code>.</p>
+                <pre><code class="language-go">// pkg/bastion/app.go
+type App struct {
+    config   Config
+    server   *http.Server
+    router   *router.Router
+    shutdown chan os.Signal
+}
+
+func NewApp(cfg Config) *App {
+    r := router.New() // Initialize the router
+    
+    app := &App{
+        config:   cfg,
+        router:   r,
+        shutdown: make(chan os.Signal, 1),
+    }
+    
+    // Configure the underlying http.Server with timeouts
+    app.server = &http.Server{
+        Addr:         fmt.Sprintf(":%d", cfg.Port),
+        Handler:      r.Handler(), // The router acts as the main HTTP handler
+        ReadTimeout:  cfg.ReadTimeout,
+        WriteTimeout: cfg.WriteTimeout,
+        IdleTimeout:  cfg.IdleTimeout,
+    }
+    return app
+}
+
+// RunWithGracefulShutdown starts the server and handles graceful shutdown.
+func (a *App) RunWithGracefulShutdown() error {
+    // ... (implementation details for starting server and handling signals)
+}
+</code></pre>
+                <p class="text-slate-300">The <code>App</code> provides methods like <code>Router()</code> to get the root router and <code>Use()</code> to register global middleware. Its primary role is to orchestrate the server's startup and shutdown.</p>
+
+                <h4 class="text-2xl font-medium text-slate-300 mt-6 mb-3">The <code>Config</code> Structure</h4>
+                <p class="text-slate-300">The <code>bastion.Config</code> struct holds all the configurable parameters for your application. This includes server settings, security feature toggles, JWT secrets, rate limiting parameters, and more. It's designed to be easily populated from environment variables, promoting 12-factor app principles.</p>
+                <pre><code class="language-go">// pkg/bastion/config.go
+type Config struct {
+    // Server configuration
+    Port         int           `env:"PORT"`          // HTTP server port
+    Env          string        `env:"ENV"`           // Application environment (e.g., "development", "production")
+    ReadTimeout  time.Duration `env:"READ_TIMEOUT"`  // Max duration for reading the entire request
+    WriteTimeout time.Duration `env:"WRITE_TIMEOUT"` // Max duration for writing the entire response
+    IdleTimeout  time.Duration `env:"IDLE_TIMEOUT"`  // Max duration for keep-alive connections
+
+    // Security features toggles
+    EnableCSRF     bool   `env:"ENABLE_CSRF"`     // Enable/disable CSRF protection middleware
+    EnableJWT      bool   `env:"ENABLE_JWT"`      // Enable/disable JWT authentication middleware
+    EnableRateLimit bool  `env:"ENABLE_RATE_LIMIT"` // Enable/disable global rate limiting middleware
+    
+    // JWT configuration
+    JWTSecret      string        `env:"JWT_SECRET"`      // Secret key for signing and verifying JWTs
+    JWTAccessTTL   time.Duration `env:"JWT_ACCESS_TTL"`  // Time-to-live for access tokens
+    JWTRefreshTTL  time.Duration `env:"JWT_REFRESH_TTL"` // Time-to-live for refresh tokens (if implemented)
+    
+    // Rate limiting configuration
+    RateLimitRequests int           `env:"RATE_LIMIT_REQUESTS"` // Max requests allowed within the window
+    RateLimitWindow   time.Duration `env:"RATE_LIMIT_WINDOW"`   // Time window for rate limiting
+    
+    // Security headers
+    EnableSecurityHeaders bool   `env:"ENABLE_SECURITY_HEADERS"` // Enable/disable security headers middleware
+    CSP                   string `env:"CSP"`                     // Content Security Policy string
+    
+    // Database configuration (agnostic - for your app to use)
+    DBDriver string `env:"DB_DRIVER"` // Database driver name (e.g., "postgres", "mysql")
+    DSN      string `env:"DSN"`       // Data Source Name for database connection
+    
+    // Logging
+    LogLevel string `env:"LOG_LEVEL"` // Logging level (e.g., "info", "debug", "error")
+}
+</code></pre>
+
+                <h4 class="text-2xl font-medium text-slate-300 mt-6 mb-3">Loading Configuration</h4>
+                <p class="text-slate-300">You can obtain a <code>Config</code> instance in two primary ways:</p>
+                <ol class="list-decimal list-inside ml-4 space-y-2 text-slate-300">
+                    <li><strong>Using Default Values:</strong> <code>bastion.DefaultConfig()</code> provides a baseline with sensible defaults.</li>
+                    <li><strong>Loading from Environment Variables:</strong> <code>bastion.LoadConfigFromEnv()</code> first loads defaults, then overrides them with values found in environment variables. This is the recommended approach for production deployments.</li>
+                </ol>
+                <pre><code class="language-go">// Example: Programmatic override
+cfg := bastion.DefaultConfig()
+cfg.Port = 8080
+cfg.Env = "production"
+cfg.JWTSecret = os.Getenv("MY_APP_JWT_SECRET") // Always load secrets from env!
+
+// Example: Loading from environment variables
+// This will automatically pick up PORT, ENV, JWT_SECRET etc.
+// from your shell environment.
+cfg := bastion.LoadConfigFromEnv()
+</code></pre>
+
+                <div class="do-dont-card do-card bg-green-900/20 border-green-500 text-green-200">
+                    <h4>✅ DO: Use Environment Variables for Configuration</h4>
+                    <p>Always load sensitive information (like JWT secrets, database credentials) and environment-specific settings from environment variables. This keeps your code clean and prevents secrets from being committed to version control.</p>
+                    <pre><code class="language-bash"># In your deployment environment or .env file
+PORT=8080
+ENV=production
+JWT_SECRET="your-very-long-and-secure-secret-key"
+DB_DSN="host=localhost user:password@db:5432/mydatabase?sslmode=disable"</code></pre>
+                </div>
+                <div class="do-dont-card dont-card bg-red-900/20 border-red-500 text-red-200">
+                    <h4>❌ DON'T: Hardcode Secrets or Environment-Specific Values</h4>
+                    <p>Avoid embedding secrets directly in your source code. This is a major security risk and makes deployments inflexible.</p>
+                    <pre><code class="language-go">// BAD PRACTICE: Hardcoding secrets
+cfg.JWTSecret = "my-insecure-hardcoded-secret" 
+</code></pre>
+                </div>
+                <div class="callout callout-warning bg-yellow-900/20 border-yellow-500 text-yellow-200">
+                    <h4>Important Security Note</h4>
+                    <p>The <code>JWTSecret</code> in the example code is a placeholder. In a real application, this must be a strong, randomly generated key (at least 32 bytes for HS256) loaded securely from environment variables or a secret management system.</p>
+                </div>
+            </section>
+
+            <section id="router-context" class="space-y-6">
+                <h3 class="text-3xl font-semibold text-slate-200 mt-10 mb-4">Router & Context</h3>
+                <p class="text-slate-300">The <code>Router</code> is responsible for dispatching incoming HTTP requests to the correct handler, while the <code>Context</code> object provides a rich interface for interacting with the request, writing responses, and managing request-scoped data.</p>
+
+                <h4 class="text-2xl font-medium text-slate-300 mt-6 mb-3">The <code>Router</code> API</h4>
+                <p class="text-slate-300">The <code>router.Router</code> type is a high-performance HTTP router that supports path parameters, route grouping, and middleware chaining. You obtain the root router from your <code>App</code> instance using <code>app.Router()</code>.</p>
+                <pre><code class="language-go">// pkg/router/router.go
+type Router struct {
+    prefix      string
+    parent      *Router
+    tree        *node // Internal radix tree for efficient routing
+    middlewares []Middleware
+    mu          sync.RWMutex
+    notFound    Handler
+    methodNotAllowed Handler
+}
+
+// New creates a new Router instance.
+func New() *Router { /* ... */ }
+
+// Group creates a new router group with the given prefix.
+func (r *Router) Group(prefix string) *Router { /* ... */ }
+
+// Use registers middleware that will be applied to all routes in this group.
+func (r *Router) Use(mw ...Middleware) { /* ... */ }
+
+// HTTP Method registration functions
+func (r *Router) GET(path string, h Handler) { /* ... */ }
+func (r *Router) POST(path string, h Handler) { /* ... */ }
+func (r *Router) PUT(path string, h Handler) { /* ... */ }
+func (r *Router) DELETE(path string, h Handler) { /* ... */ }
+func (r *Router) PATCH(path string, h Handler) { /* ... */ }
+</code></pre>
+                <p class="text-slate-300">Key methods:</p>
+                <ul class="list-disc list-inside ml-4 space-y-1 text-slate-300">
+                    <li><strong><code>GET</code>, <code>POST</code>, <code>PUT</code>, <code>DELETE</code>, <code>PATCH</code>:</strong> Register handlers for specific HTTP methods and paths.</li>
+                    <li><strong><code>Group(prefix string) *Router</code>:</strong> Creates a new router group. This is incredibly useful for organizing routes with common prefixes (e.g., <code>/api/v1</code>, <code>/users</code>) and applying group-specific middleware.</li>
+                    <li><strong><code>Use(mw ...Middleware)</code>:</strong> Registers middleware for the current router group. Middleware registered on the root router apply globally; middleware on a group apply only to routes within that group.</li>
+                </ul>
+
+                <h4 class="text-2xl font-medium text-slate-300 mt-6 mb-3">The <code>Context</code> API</h4>
+                <p class="text-slate-300">The <code>router.Context</code> object is passed to every handler and provides all the necessary tools to handle an HTTP request and construct a response. It wraps the underlying <code>http.Request</code> and <code>http.ResponseWriter</code>, adding convenience methods and a request-scoped data store.</p>
+                <pre><code class="language-go">// pkg/router/context.go
+type Context struct {
+	req        *http.Request
+	res        http.ResponseWriter
+	params         map[string]string // Stores path parameters
+	store          map[string]any    // Request-scoped data store
+	mu             sync.RWMutex
+	statusCode     int
+	written        bool
+}
+</code></pre>
+                <p class="text-slate-300">Key <code>Context</code> methods:</p>
+                <ul class="list-disc list-inside ml-4 space-y-1 text-slate-300">
+                    <li><strong><code>Request() *http.Request</code>:</strong> Returns the raw <code>*http.Request</code> object.</li>
+                    <li><strong><code>ResponseWriter() http.ResponseWriter</code>:</strong> Returns the raw <code>http.ResponseWriter</code> object.</li>
+                    <li><strong><code>Param(name string) string</code>:</strong> Retrieves the value of a path parameter (e.g., <code>:id</code> in <code>/users/:id</code>).</li>
+                    <li><strong><code>Query(name string) string</code>:</strong> Retrieves the value of a URL query parameter (e.g., <code>?page=1</code>).</li>
+                    <li><strong><code>FormValue(name string) string</code>:</strong> Retrieves the value of a form parameter (from URL-encoded or multipart forms).</li>
+                    <li><strong><code>BindJSON(dest any) error</code>:</strong> Decodes the JSON request body into the provided Go struct.</li>
+                    <li><strong><code>Status(code int)</code>:</strong> Sets the HTTP status code for the response.</li>
+                    <li><strong><code>JSON(status int, value any)</code>:</strong> Sends a JSON response with the given status code and payload.</li>
+                    <li><strong><code>Set(key string, value any)</code>:</strong> Stores a value in the request-scoped context store. Useful for passing data between middleware and handlers.</li>
+                    <li><strong><code>Get(key string) (any, bool)</code>:</strong> Retrieves a value from the request-scoped context store.</li>
+                    <li><strong><code>GetString(key string) (string, bool)</code>, <code>GetInt(key string) (int, bool)</code>:</strong> Type-safe retrieval from the context store.</li>
+                    <li><strong><code>StatusCode() int</code>:</strong> Returns the HTTP status code that has been set for the response.</li>
+                </ul>
+
+                <h4 class="text-2xl font-medium text-slate-300 mt-6 mb-3">Route Examples</h4>
+                <p class="text-slate-300">Here are various examples demonstrating how to define routes and use the <code>Context</code> object:</p>
+
+                <h5 class="text-xl font-medium text-slate-400 mt-4 mb-2">Simple "Hello World"</h5>
+                <pre><code class="language-go">r.GET("/hello", func(ctx *router.Context) {
+    ctx.JSON(200, map[string]string{"message": "Hello, goBastion!"})
+})
+</code></pre>
+
+                <h5 class="text-xl font-medium text-slate-400 mt-4 mb-2">Route with Path Parameters</h5>
+                <pre><code class="language-go">r.GET("/users/:id", func(ctx *router.Context) {
+    userID := ctx.Param("id") // Get the 'id' from the URL path
+    ctx.JSON(200, map[string]string{"user_id": userID, "message": "Fetching user details"})
+})
+</code></pre>
+
+                <h5 class="text-xl font-medium text-slate-400 mt-4 mb-2">Route that Binds JSON Body</h5>
+                <pre><code class="language-go">type CreateProductRequest struct {
+    Name  string  `json:"name"`
+    Price float64 `json:"price"`
+}
+
+r.POST("/products", func(ctx *router.Context) {
+    var req CreateProductRequest
+    if err := ctx.BindJSON(&req); err != nil {
+        response.Error(ctx, 400, "invalid_json", "Failed to parse request body")
+        return
+    }
+    // In a real app, save product to DB
+    ctx.JSON(201, map[string]any{"message": "Product created", "product_name": req.Name})
+})
+</code></pre>
+
+                <h5 class="text-xl font-medium text-slate-400 mt-4 mb-2">Route with Query Parameters and Pagination</h5>
+                <pre><code class="language-go">r.GET("/items", func(ctx *router.Context) {
+    page := ctx.Query("page") // Get "page" query param, e.g., /items?page=2
+    limit := ctx.Query("limit") // Get "limit" query param, e.g., /items?limit=10
+
+    // Default values if not provided
+    if page == "" { page = "1" }
+    if limit == "" { limit = "20" }
+
+    // In a real app, fetch paginated items from DB
+    ctx.JSON(200, map[string]any{
+        "message": "Listing items",
+        "page":    page,
+        "limit":   limit,
+        "items":   []string{"itemA", "itemB", "itemC"},
+    })
+})
+</code></pre>
+
+                <div class="do-dont-card do-card bg-green-900/20 border-green-500 text-green-200">
+                    <h4>✅ DO: Validate Input and Return Structured Error Responses</h4>
+                    <p>Always validate incoming request data (path params, query params, JSON body) and return clear, structured error responses using <code>response.Error()</code>. This helps API consumers understand what went wrong.</p>
+                    <pre><code class="language-go">if req.Name == "" {
+    response.Error(ctx, 400, "validation_error", "Product name is required")
+    return
+}
+</code></pre>
+                </div>
+                <div class="do-dont-card dont-card bg-red-900/20 border-red-500 text-red-200">
+                    <h4>❌ DON'T: Panic for Expected User Errors</h4>
+                    <p>Panicking for invalid user input or missing resources is an anti-pattern in web handlers. Use proper error handling and return appropriate HTTP status codes (e.g., 400, 404, 422).</p>
+                    <pre><code class="language-go">// BAD PRACTICE: Panicking on invalid input
+if userID == "" {
+    panic("User ID cannot be empty!") // This will be caught by Recovery middleware, but it's not ideal for expected errors.
+}
+</code></pre>
+                </div>
+            </section>
+
+            <section id="middlewares" class="space-y-6">
+                <h3 class="text-3xl font-semibold text-slate-200 mt-10 mb-4">Middleware & Security</h3>
+                <p class="text-slate-300">Middleware functions are powerful tools that allow you to process HTTP requests before they reach your handlers and/or process responses after handlers have executed. They form a chain, with each middleware having the opportunity to perform actions, modify the request/response, or even short-circuit the chain.</p>
+                <p class="text-slate-300">In <code>goBastion Lib</code>, a middleware is a function that takes a <code>router.Handler</code> and returns a new <code>router.Handler</code>. This allows for elegant composition.</p>
+                <pre><code class="language-go">// pkg/router/router.go
+type Middleware func(Handler) Handler
+
+// pkg/middleware/middleware.go
+// Chain creates a middleware chain.
+func Chain(middlewares ...router.Middleware) router.Middleware {
+    return func(next router.Handler) router.Handler {
+        for i := len(middlewares) - 1; i >= 0; i-- {
+            next = middlewares[i](next)
+        }
+        return next
+    }
+}
+</code></pre>
+
+                <h4 class="text-2xl font-medium text-slate-300 mt-6 mb-3">Middleware Chain Order</h4>
+                <p class="text-slate-300">Middleware are applied in the order they are registered. The last middleware registered will be the "outermost" one, executing first. The first middleware registered will be the "innermost" one, executing just before the actual handler. This is a common pattern in Go web frameworks.</p>
+                <pre><code class="language-text">Request -> Middleware A -> Middleware B -> Middleware C -> Handler -> Response
+                                                              ^ 
+                                                              | 
+                                                            (next(ctx) call)
+</code></pre>
+                <p class="text-slate-300">When you call <code>next(ctx)</code> within a middleware, you are passing control to the next middleware in the chain, or to the final handler if it's the last middleware.</p>
+
+                <h4 class="text-2xl font-medium text-slate-300 mt-6 mb-3">Built-in Middlewares</h4>
+
+                <h5 class="text-xl font-medium text-slate-400 mt-4 mb-2">Request ID (<code>middleware.RequestID()</code>)</h5>
+                <p class="text-slate-300">Assigns a unique identifier to each incoming request. This ID is invaluable for tracing requests through logs, especially in distributed systems.</p>
+                <ul class="list-disc list-inside ml-4 space-y-1 text-slate-300">
+                    <li><strong>Function:</strong> Generates a random 32-character hex string.</li>
+                    <li><strong>Context:</strong> Stores the ID in <code>ctx.Set("requestID", id)</code>.</li>
+                    <li><strong>Header:</strong> Adds the ID to the response header <code>X-Request-ID</code>.</li>
+                    <li><strong>Usage:</strong> <code>app.Use(middleware.RequestID())</code></li>
+                </ul>
+                <pre><code class="language-go">app.Use(middleware.RequestID())
+
+// In a handler or subsequent middleware:
+requestID, _ := ctx.GetString("requestID")
+log.Printf("Processing request %s", requestID)
+</code></pre>
+
+                <h5 class="text-xl font-medium text-slate-400 mt-4 mb-2">Logging (<code>middleware.Logging()</code>)</h5>
+                <p class="text-slate-300">Provides structured logging for every HTTP request, capturing essential details for monitoring and debugging.</p>
+                <ul class="list-disc list-inside ml-4 space-y-1 text-slate-300">
+                    <li><strong>Function:</strong> Logs request method, path, response status code, and duration. Integrates with <code>RequestID</code> if present.</li>
+                    <li><strong>Log Format:</strong> <code>[REQUEST_ID] METHOD PATH STATUS_CODE DURATION</code></li>
+                    <li><strong>Usage:</strong> <code>app.Use(middleware.DefaultLogging())</code> (uses <code>log.Default()</code>) or <code>app.Use(middleware.Logging(myCustomLogger))</code>.</li>
+                </ul>
+                <pre><code class="language-go">app.Use(middleware.DefaultLogging())
+// Example log output:
+// INFO: [a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6] GET /api/health 200 1.234ms</code></pre>
+
+                <h5 class="text-xl font-medium text-slate-400 mt-4 mb-2">Recovery (<code>middleware.Recovery()</code>)</h5>
+                <p class="text-slate-300">A critical middleware for production applications. It catches any panics that occur during request processing, prevents the server from crashing, logs the panic, and returns a generic 500 error to the client.</p>
+                <ul class="list-disc list-inside ml-4 space-y-1 text-slate-300">
+                    <li><strong>Function:</strong> Uses <code>defer</code> and <code>recover()</code> to catch panics.</li>
+                    <li><strong>Error Response:</strong> Returns a <code>500 Internal Server Error</code> with a JSON body including <code>"internal_server_error"</code> and the <code>request_id</code>.</li>
+                    <li><strong>Logging:</strong> Logs the panic message and stack trace to the provided logger.</li>
+                    <li><strong>Usage:</strong> <code>app.Use(middleware.DefaultRecovery())</code> or <code>app.Use(middleware.Recovery(myCustomLogger))</code>.</li>
+                </ul>
+                <pre><code class="language-go">app.Use(middleware.DefaultRecovery())
+// If a handler panics:
+// Log output: panic: runtime error: index out of range [10] with length 5
+//             [stack trace]
+// Client receives:
+// HTTP/1.1 500 Internal Server Error
+// Content-Type: application/json
+// X-Request-ID: ...
+// 
+// {
+//     "error": "internal_server_error",
+//     "request_id": "a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6"
+// }
+</code></pre>
+
+                <h5 class="text-xl font-medium text-slate-400 mt-4 mb-2">Security Headers (<code>middleware.SecurityHeaders()</code>)</h5>
+                <p class="text-slate-300">Adds a set of recommended HTTP security headers to all responses, bolstering your application's defense against common web vulnerabilities.</p>
+                <ul class="list-disc list-inside ml-4 space-y-1 text-slate-300">
+                    <li><strong>Function:</strong> Sets headers like <code>X-Content-Type-Options</code>, <code>X-Frame-Options</code>, <code>X-XSS-Protection</code>, <code>Referrer-Policy</code>, <code>Content-Security-Policy</code> (CSP), and <code>Strict-Transport-Security</code> (HSTS).</li>
+                    <li><strong>Configuration:</strong> CSP and HSTS values are configurable via <code>SecurityHeadersConfig</code>.</li>
+                    <li><strong>Usage:</strong> <code>app.Use(middleware.SecurityHeaders(middleware.DefaultSecurityHeaders()))</code>.</li>
+                </ul>
+                <pre><code class="language-go">app.Use(middleware.SecurityHeaders(middleware.DefaultSecurityHeaders()))
+// Default headers added:
+// X-Content-Type-Options: nosniff
+// X-Frame-Options: DENY
+// X-XSS-Protection: 1; mode=block
+// Referrer-Policy: no-referrer
+// Content-Security-Policy: default-src 'self';
+// Strict-Transport-Security: max-age=31536000; includeSubDomains
+</code></pre>
+
+                <h5 class="text-xl font-medium text-slate-400 mt-4 mb-2">Rate Limiting (<code>middleware.RateLimit()</code>)</h5>
+                <p class="text-slate-300">Protects your API from abuse and denial-of-service attacks by limiting the number of requests a client can make within a specified time window. It uses a sliding window algorithm based on the client's IP address.</p>
+                <ul class="list-disc list-inside ml-4 space-y-1 text-slate-300">
+                    <li><strong>Function:</strong> Tracks requests per IP address over a configurable time window.</li>
+                    <li><strong>Configuration:</strong> Takes <code>requests</code> (max allowed) and <code>window</code> (duration) parameters.</li>
+                    <li><strong>Response:</strong> If the limit is exceeded, returns a <code>429 Too Many Requests</code> with a JSON body <code>{"error": "too_many_requests"}</code>.</li>
+                    <li><strong>Usage:</strong> <code>app.Use(middleware.RateLimit(cfg.RateLimitRequests, cfg.RateLimitWindow))</code>.</li>
+                </ul>
+                <pre><code class="language-go">if cfg.EnableRateLimit {
+    app.Use(middleware.RateLimit(cfg.RateLimitRequests, cfg.RateLimitWindow))
+}
+</code></pre>
+
+                <h5 class="text-xl font-medium text-slate-400 mt-4 mb-2">JWT Authentication (<code>middleware.JWTAuth()</code>)</h5>
+                <p class="text-slate-300">Enforces JWT-based authentication for protected routes. It expects a valid JWT in the <code>Authorization: Bearer &lt;token&gt;</code> header.</p>
+                <ul class="list-disc list-inside ml-4 space-y-1 text-slate-300">
+                    <li><strong>Function:</strong> Parses and validates the JWT using the configured secret.</li>
+                    <li><strong>Context:</strong> If valid, extracts claims and stores them in <code>ctx.Set("userClaims", claims)</code>.</li>
+                    <li><strong>Response:</strong> If the token is missing, invalid, or expired, returns <code>401 Unauthorized</code> with appropriate error messages (e.g., <code>{"error": "unauthorized"}</code> or <code>{"error": "token_expired"}</code>).</li>
+                    <li><strong>Usage:</strong> Typically applied to route groups: <code>apiGroup.Use(middleware.JWTAuth(cfg.JWTSecret))</code>.</li>
+                </ul>
+                <pre><code class="language-go">protectedApiGroup := r.Group("/api")
+protectedApiGroup.Use(middleware.JWTAuth(cfg.JWTSecret))
+
+protectedApiGroup.GET("/profile", func(ctx *router.Context) {
+    claims, _ := ctx.Get("userClaims") // Access claims here
+    ctx.JSON(200, claims)
+})
+</code></pre>
+
+                <h5 class="text-xl font-medium text-slate-400 mt-4 mb-2">CSRF Protection (<code>middleware.CSRFMiddleware()</code>)</h5>
+                <p class="text-slate-300">Provides Cross-Site Request Forgery (CSRF) protection using the double-submit cookie pattern. This is crucial for web applications where a browser client interacts with your API.</p>
+                <ul class="list-disc list-inside ml-4 space-y-1 text-slate-300">
+                    <li><strong>Function:</strong> For "safe" methods (GET, HEAD, OPTIONS), it sets a <code>csrf_token</code> cookie. For "unsafe" methods (POST, PUT, DELETE, PATCH), it verifies that the token in the <code>csrf_token</code> cookie matches the token provided in the <code>X-CSRF-Token</code> header or a form field.</li>
+                    <li><strong>Response:</strong> If tokens do not match or are missing for unsafe methods, returns <code>403 Forbidden</code> with <code>{"error": "csrf_failed"}</code>.</li>
+                    <li><strong>Usage:</strong> <code>app.Use(middleware.CSRFMiddleware(middleware.DefaultCSRFConfig()))</code>.</li>
+                </ul>
+                <pre><code class="language-go">if cfg.EnableCSRF {
+    app.Use(middleware.CSRFMiddleware(middleware.DefaultCSRFConfig()))
+}
+</code></pre>
+                <div class="callout callout-info bg-blue-900/20 border-blue-500 text-blue-200">
+                    <h4>CSRF and Non-Browser Clients</h4>
+                    <p>CSRF protection is primarily designed to protect against attacks originating from web browsers. For pure API clients (e.g., mobile apps, other backend services) that do not send cookies automatically with requests, CSRF protection might not be necessary and can sometimes complicate client implementations. Consider disabling it (<code>EnableCSRF: false</code>) if your API is exclusively consumed by non-browser clients, or if you implement alternative protection mechanisms (e.g., custom headers, token-based authentication without cookies).</p>
+                </div>
+
+                <div class="do-dont-card do-card bg-green-900/20 border-green-500 text-green-200">
+                    <h4>✅ DO: Keep Middleware Lean and Focused</h4>
+                    <p>Each middleware should ideally have a single, well-defined responsibility (e.g., logging, authentication, error recovery). Avoid cramming too much logic into a single middleware.</p>
+                </div>
+                <div class="do-dont-card dont-card bg-red-900/20 border-red-500 text-red-200">
+                    <h4>❌ DON'T: Perform Heavy Business Logic or Database Operations in Middleware</h4>
+                    <p>Middleware should generally handle cross-cutting concerns. Complex business logic, extensive database queries, or external API calls belong in your handlers or service layer, not in middleware, to maintain separation of concerns and performance.</p>
+                </div>
+            </section>
+
+            <section id="error-handling" class="space-y-6">
+                <h3 class="text-3xl font-semibold text-slate-200 mt-10 mb-4">Error Handling & Responses</h3>
+                <p class="text-slate-300">Consistent and informative error handling is a hallmark of a well-designed API. <code>goBastion Lib</code> provides helpers to standardize your error responses.</p>
+
+                <h4 class="text-2xl font-medium text-slate-300 mt-6 mb-3">Standardized Error Structure</h4>
+                <p class="text-slate-300">The framework encourages a consistent JSON error format, typically an object with an <code>error</code> field, which itself can contain <code>code</code> and <code>message</code> fields for detailed information.</p>
+                <pre><code class="language-json">{
+    "error": {
+        "code": "validation_error",
+        "message": "All fields are required"
+    }
+}
+</code></pre>
+                <p class="text-slate-300">For simpler errors (e.g., from middleware), it might just be a string:</p>
+                <pre><code class="language-json">{
+    "error": "unauthorized"
+}
+</code></pre>
+
+                <h4 class="text-2xl font-medium text-slate-300 mt-6 mb-3">Using <code>response.Error()</code></h4>
+                <p class="text-slate-300">The <code>response.Error()</code> helper function is the primary way to send structured error responses from your handlers.</p>
+                <pre><code class="language-go">// pkg/response/response.go
+func Error(ctx *router.Context, status int, code, message string) {
+    ctx.JSON(status, map[string]any{
+        "error": map[string]string{
+            "code":    code,
+            "message": message,
+        },
+    })
+}
+</code></pre>
+                <p class="text-slate-300">Example usage in a handler:</p>
+                <pre><code class="language-go">if username == "" {
+    response.Error(ctx, 400, "validation_error", "Username cannot be empty")
+    return
+}
+</code></pre>
+
+                <h4 class="text-2xl font-medium text-slate-300 mt-6 mb-3">Panic Recovery Integration</h4>
+                <p class="text-slate-300">As discussed in the Middleware section, the <code>middleware.Recovery()</code> catches unexpected panics and transforms them into a standardized <code>500 Internal Server Error</code> response, preventing application crashes and providing a consistent error experience for clients.</p>
+                <pre><code class="language-json">{
+    "error": "internal_server_error",
+    "request_id": "a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6"
+}
+</code></pre>
+
+                <div class="do-dont-card do-card bg-green-900/20 border-green-500 text-green-200">
+                    <h4>✅ DO: Return Specific HTTP Status Codes</h4>
+                    <p>Use appropriate HTTP status codes (e.g., 400 Bad Request, 401 Unauthorized, 403 Forbidden, 404 Not Found, 422 Unprocessable Entity, 500 Internal Server Error) to accurately reflect the nature of the error.</p>
+                </div>
+                <div class="do-dont-card dont-card bg-red-900/20 border-red-500 text-red-200">
+                    <h4>❌ DON'T: Return 200 OK for Errors</h4>
+                    <p>Never return a <code>200 OK</code> status code when an error has occurred, even if the error message is in the JSON body. This misleads clients and makes error detection difficult.</p>
+                </div>
+            </section>
+        </section>
+
+        <section id="routing-guide" class="section-content space-y-6">
+            <h2 class="text-4xl font-bold text-slate-100 mb-6">Routing Guide</h2>
+            <p class="text-lg text-slate-300">Effective routing is fundamental to a well-structured API. <code>goBastion Lib</code>'s router provides flexible mechanisms for defining and organizing your endpoints.</p>
+
+            <h3 class="text-3xl font-semibold text-slate-200 mt-10 mb-4">Basic Route Registration</h3>
+            <p class="text-slate-300">Registering a route involves specifying an HTTP method, a path, and a handler function.</p>
+            <pre><code class="language-go">r := app.Router()
+
+// Simple GET route
+r.GET("/status", func(ctx *router.Context) {
+    ctx.JSON(200, map[string]string{"status": "operational"})
+})
+
+// Simple POST route
+r.POST("/data", func(ctx *router.Context) {
+    // ... handle POST request
+    ctx.JSON(200, map[string]string{"message": "Data received"})
+})
+</code></pre>
+
+            <h3 class="text-3xl font-semibold text-slate-200 mt-10 mb-4">Route Grouping</h3>
+            <p class="text-slate-300">Route groups allow you to apply common prefixes and middleware to a set of routes, leading to cleaner and more modular route definitions.</p>
+            <pre><code class="language-go">// Create a top-level API group
+api := r.Group("/api")
+
+// Create a versioned API group
+v1 := api.Group("/v1")
+
+// Routes under /api/v1
+v1.GET("/info", func(ctx *router.Context) {
+    ctx.JSON(200, map[string]string{"version": "1.0"})
+})
+
+// Nested groups with middleware
+usersGroup := v1.Group("/users")
+// Apply a specific middleware only to user-related routes
+usersGroup.Use(middleware.JWTAuth(cfg.JWTSecret)) 
+
+usersGroup.GET("/", func(ctx *router.Context) {
+    // ... list users
+    ctx.JSON(200, map[string]string{"message": "List of users (protected)"})
+})
+usersGroup.POST("/", func(ctx *router.Context) {
+    // ... create user
+    ctx.JSON(201, map[string]string{"message": "User created (protected)"})
+})
+</code></pre>
+
+            <h3 class="text-3xl font-semibold text-slate-200 mt-10 mb-4">CRUD Resource Example</h3>
+            <p class="text-slate-300">Here's how you might define routes for a typical CRUD (Create, Read, Update, Delete) resource, such as <code>/api/users</code>:</p>
+            <pre><code class="language-go">func setupUserRoutes(r *router.Router, cfg bastion.Config) {
+    usersGroup := r.Group("/users")
+    usersGroup.Use(middleware.JWTAuth(cfg.JWTSecret)) // All user routes require JWT
+
+    // GET /users - List all users
+    usersGroup.GET("/", func(ctx *router.Context) {
+        // Logic to fetch and return a list of users
+        ctx.JSON(200, map[string]any{"users": []string{"Alice", "Bob"}})
+    })
+
+    // POST /users - Create a new user
+    usersGroup.POST("/", func(ctx *router.Context) {
+        // Logic to parse request body, validate, and create user
+        ctx.JSON(201, map[string]string{"message": "User created"})
+    })
+
+    // GET /users/:id - Get a single user by ID
+    usersGroup.GET("/:id", func(ctx *router.Context) {
+        userID := ctx.Param("id")
+        // Logic to fetch user by ID
+        ctx.JSON(200, map[string]string{"user_id": userID, "name": "Alice"})
+    })
+
+    // PUT /users/:id - Update a user by ID
+    usersGroup.PUT("/:id", func(ctx *router.Context) {
+        userID := ctx.Param("id")
+        // Logic to parse request body, validate, and update user
+        ctx.JSON(200, map[string]string{"message": "User updated", "user_id": userID})
+    })
+
+    // DELETE /users/:id - Delete a user by ID
+    usersGroup.DELETE("/:id", func(ctx *router.Context) {
+        userID := ctx.Param("id")
+        // Logic to delete user by ID
+        ctx.JSON(204, nil) // 204 No Content for successful deletion
+    })
+}
+
+// In main.go:
+// api := r.Group("/api")
+// setupUserRoutes(api, cfg) // Pass the API group and config to the setup function
+</code></pre>
+
+            <h3 class="text-3xl font-semibold text-slate-200 mt-10 mb-4">Organizing Routes in Files and Packages</h3>
+            <p class="text-slate-300">For larger applications, it's best to separate route definitions into their own files and packages, typically within your <code>internal/api/routes/</code> directory. This improves modularity and readability.</p>
+            <pre><code class="language-go">// internal/api/routes/user_routes.go
+package routes
+
+import (
+    "github.com/alejandrombjs/go-bastion-lib/pkg/bastion"
+    "github.com/alejandrombjs/go-bastion-lib/pkg/middleware"
+    "github.com/alejandrombjs/go-bastion-lib/pkg/router"
+    // ... other imports for handlers
+)
+
+// UserRoutes sets up all user-related API endpoints.
+func UserRoutes(parentRouter *router.Router, cfg bastion.Config) {
+    usersGroup := parentRouter.Group("/users")
+    usersGroup.Use(middleware.JWTAuth(cfg.JWTSecret)) // Apply JWT middleware
+
+    usersGroup.GET("/", handlers.ListUsers)
+    usersGroup.POST("/", handlers.CreateUser)
+    usersGroup.GET("/:id", handlers.GetUser)
+    usersGroup.PUT("/:id", handlers.UpdateUser)
+    usersGroup.DELETE("/:id", handlers.DeleteUser)
+}
+
+// internal/api/routes/auth_routes.go
+package routes
+
+import (
+    "github.com/alejandrombjs/go-bastion-lib/pkg/bastion"
+    "github.com/alejandrombjs/go-bastion-lib/pkg/router"
+    // ... other imports for handlers
+)
+
+// AuthRoutes sets up all authentication-related API endpoints.
+func AuthRoutes(parentRouter *router.Router, cfg bastion.Config) {
+    authGroup := parentRouter.Group("/auth")
+    authGroup.POST("/login", handlers.Login)
+    // ... other auth routes
+}
+
+// cmd/api/main.go (simplified)
+package main
+
+import (
+    "github.com/alejandrombjs/go-bastion-lib/pkg/bastion"
+    "github.com/alejandrombjs/go-bastion-lib/pkg/router"
+    "my-go-app/internal/api/routes" // Import your internal routes package
+)
+
+func main() {
+    cfg := bastion.LoadConfigFromEnv()
+    app := bastion.NewApp(cfg)
+    // ... global middleware setup ...
+
+    apiRouter := app.Router().Group("/api") // Create a top-level /api group
+
+    routes.AuthRoutes(apiRouter, cfg) // Register auth routes under /api/auth
+    routes.UserRoutes(apiRouter, cfg) // Register user routes under /api/users
+
+    app.RunWithGracefulShutdown()
+}
+</code></pre>
+        </section>
+
+        <section id="handlers-business-logic" class="section-content space-y-6">
+            <h2 class="text-4xl font-bold text-slate-100 mb-6">Handlers & Business Logic</h2>
+            <p class="text-lg text-slate-300">A clean separation between your HTTP handlers and your core business logic is paramount for building maintainable, testable, and scalable applications. <code>goBastion Lib</code> facilitates this by providing a clear boundary.</p>
+
+            <h3 class="text-3xl font-semibold text-slate-200 mt-10 mb-4">Separation of Concerns</h3>
+            <p class="text-slate-300">Your application should ideally be structured into distinct layers, each with a specific responsibility:</p>
+            <ul class="list-disc list-inside ml-4 space-y-2 text-slate-300">
+                <li><strong>HTTP Layer (Handlers):</strong> This layer is concerned with the HTTP protocol. Handlers receive requests, parse input (path params, query params, JSON body), validate basic input format, call the appropriate service layer function, and format the HTTP response (JSON). They should be thin.</li>
+                <li><strong>Service/Business Logic Layer:</strong> This is the heart of your application. It contains the core domain rules, orchestrates interactions between different components (e.g., calling repositories, external services), and performs complex operations. This layer should be independent of the HTTP layer, meaning it shouldn't know about <code>router.Context</code> or <code>http.Request</code>.</li>
+                <li><strong>Data Access Layer (Repositories):</strong> Responsible for interacting with your persistence mechanisms (databases, file systems, external APIs). It provides an abstraction over data storage, allowing the service layer to remain unaware of the underlying data source details.</li>
+            </ul>
+
+            <h3 class="text-3xl font-semibold text-slate-200 mt-10 mb-4">Handler Responsibilities</h3>
+            <p class="text-slate-300">A well-designed handler in <code>goBastion Lib</code> should:</p>
+            <ol class="list-decimal list-inside ml-4 space-y-2 text-slate-300">
+                <li><strong>Parse Input:</strong> Extract data from <code>ctx.Param()</code>, <code>ctx.Query()</code>, and <code>ctx.BindJSON()</code>.</li>
+                <li><strong>Validate Input:</strong> Perform basic validation on the parsed input (e.g., required fields, format checks). For complex validation, delegate to the service layer.</li>
+                <li><strong>Call Service Layer:</strong> Invoke a method on your business logic service, passing only the necessary data (not the <code>Context</code> object itself).</li>
+                <li><strong>Handle Service Response/Errors:</strong> Based on the result from the service layer, construct an appropriate HTTP (JSON) response using <code>ctx.JSON()</code> or <code>response.Success()</code>/<code>response.Error()</code>.</li>
+            </ol>
+
+            <h3 class="text-3xl font-semibold text-slate-200 mt-10 mb-4">Good Handler Example</h3>
+            <p class="text-slate-300">This example demonstrates a lean handler that delegates business logic to a <code>UserService</code>.</p>
+            <pre><code class="language-go">// internal/services/user_service.go
+package services
+
+import (
+    "errors"
+    "fmt"
+    "my-go-app/internal/models" // Assuming models.User and models.CreateUserRequest
+)
+
+type UserService struct {
+    // repo models.UserRepository // Dependency on a repository interface
+}
+
+func NewUserService() *UserService {
+    return &UserService{} // In a real app, inject repository
+}
+
+func (s *UserService) CreateUser(req models.CreateUserRequest) (*models.User, error) {
+    if req.Username == "" || req.Email == "" || req.Password == "" {
+        return nil, errors.New("username, email, and password are required")
+    }
+    // In a real app: hash password, save to DB via repository, etc.
+    newUser := &models.User{
+        ID:       1, // Dummy ID
+        Username: req.Username,
+        Email:    req.Email,
+        Role:     "user",
+    }
+    fmt.Printf("Service: Created user %s\n", newUser.Username)
+    return newUser, nil
+}
+
+// internal/api/handlers/user_handlers.go
+package handlers
+
+import (
+    "my-go-app/internal/models"
+    "my-go-app/internal/services"
+    "github.com/alejandrombjs/go-bastion-lib/pkg/response"
+    "github.com/alejandrombjs/go-bastion-lib/pkg/router"
+)
+
+// UserService dependency (injected or global for simplicity in example)
+var userService = services.NewUserService() 
+
+type CreateUserRequest struct {
+    Username string `json:"username"`
+    Email    string `json:"email"`
+    Password string `json:"password"`
+}
+
+// CreateUser handles POST /api/users
+func CreateUser(ctx *router.Context) {
+    var req CreateUserRequest
+    if err := ctx.BindJSON(&req); err != nil {
+        response.Error(ctx, 400, "invalid_request", "Invalid JSON body")
+        return
+    }
+
+    // Delegate to service layer
+    user, err := userService.CreateUser(models.CreateUserRequest{
+        Username: req.Username,
+        Email:    req.Email,
+        Password: req.Password,
+    })
+    if err != nil {
+        // Handle specific service errors
+        if err.Error() == "username, email, and password are required" {
+            response.Error(ctx, 400, "validation_error", err.Error())
+            return
+        }
+        response.Error(ctx, 500, "internal_error", "Failed to create user")
+        return
+    }
+
+    response.Created(ctx, "/api/users/1", map[string]any{
+        "id": user.ID,
+        "username": user.Username,
+        "email": user.Email,
+        "message": "User created successfully",
+    })
+}
+</code></pre>
+
+            <h3 class="text-3xl font-semibold text-slate-200 mt-10 mb-4">Bad Handler Example (Anti-Pattern)</h3>
+            <p class="text-slate-300">This example shows a handler that violates the separation of concerns by embedding too much logic.</p>
+            <pre><code class="language-go">// BAD PRACTICE: Handler doing too much
+func CreateUserBad(ctx *router.Context) {
+    var req CreateUserRequest
+    if err := ctx.BindJSON(&req); err != nil { /* ... */ return }
+
+    if req.Username == "" || req.Email == "" || req.Password == "" {
+        response.Error(ctx, 400, "validation_error", "All fields are required")
+        return
+    }
+
+    // BAD: Hashing password directly in handler
+    hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
+    if err != nil { /* ... */ return }
+
+    // BAD: Directly interacting with a database or complex logic here
+    // db.Exec("INSERT INTO users ...", req.Username, req.Email, hashedPassword)
+
+    response.Created(ctx, "/api/users/1", map[string]any{"message": "User created"})
+}
+</code></pre>
+            <div class="do-dont-card do-card bg-green-900/20 border-green-500 text-green-200">
+                <h4>✅ DO: Keep Handlers Thin</h4>
+                <p>Handlers should primarily act as orchestrators, delegating complex tasks to dedicated service layers. Their main job is to translate HTTP requests into service calls and service results into HTTP responses.</p>
+            </div>
+            <div class="do-dont-card dont-card bg-red-900/20 border-red-500 text-red-200">
+                <h4>❌ DON'T: Embed Business Logic or Data Access in Handlers</h4>
+                <p>Avoid putting database queries, complex validation rules, or core business logic directly into your handlers. This makes your code harder to test, reuse, and maintain.</p>
+            </div>
+        </section>
+
+        <section id="security-best-practices" class="section-content space-y-6">
+            <h2 class="text-4xl font-bold text-slate-100 mb-6">Security Best Practices</h2>
+            <p class="text-lg text-slate-300">Security is paramount for any API. <code>goBastion Lib</code> provides tools to help, but ultimately, secure development is a shared responsibility. Here are key best practices to follow.</p>
+
+            <h3 class="text-3xl font-semibold text-slate-200 mt-10 mb-4">Request ID and Correlation IDs</h3>
+            <p class="text-slate-300">The <code>RequestID</code> middleware is your first line of defense for observability in security incidents. A unique ID for each request allows you to trace its journey through your system, correlating logs from different services (if applicable) and identifying the exact sequence of events leading to a security breach or anomaly.</p>
+            <div class="do-dont-card do-card bg-green-900/20 border-green-500 text-green-200">
+                <h4>✅ DO: Log Request IDs with Every Log Entry</h4>
+                <p>Ensure your logging middleware (or custom loggers) always include the <code>X-Request-ID</code> (or the ID from <code>ctx.GetString("requestID")</code>). This makes debugging and security auditing significantly easier.</p>
+            </div>
+            <div class="do-dont-card dont-card bg-red-900/20 border-red-500 text-red-200">
+                <h4>❌ DON'T: Ignore Request IDs</h4>
+                <p>A request ID that isn't logged or used is useless. Make it a standard practice to include it in all relevant log messages.</p>
+            </div>
+
+            <h3 class="text-3xl font-semibold text-slate-200 mt-10 mb-4">Logging Sensitive Data</h3>
+            <p class="text-slate-300">While logging is crucial, logging sensitive information can create new security vulnerabilities. Be extremely cautious about what data you write to logs.</p>
+            <div class="do-dont-card do-card bg-green-900/20 border-green-500 text-green-200">
+                <h4>✅ DO: Mask or Avoid Logging Credentials and PII</h4>
+                <p>Never log raw passwords, API keys, credit card numbers, or personally identifiable information (PII). If you must log data that <em>might</em> contain sensitive parts, mask them (e.g., replace with <code>***</code>) or log only non-sensitive identifiers.</p>
+            </div>
+            <div class="do-dont-card dont-card bg-red-900/20 border-red-500 text-red-200">
+                <h4>❌ DON'T: Log Full Request Bodies Unfiltered</h4>
+                <p>Avoid logging entire request bodies without first sanitizing or filtering out sensitive fields. A simple <code>log.Printf("%+v", req)</code> on a login request struct could expose passwords.</p>
+            </div>
+
+            <h3 class="text-3xl font-semibold text-slate-200 mt-10 mb-4">JWT (JSON Web Tokens)</h3>
+            <p class="text-slate-300">JWTs are a popular choice for API authentication, but their implementation requires careful consideration.</p>
+            <ul class="list-disc list-inside ml-4 space-y-2 text-slate-300">
+                <li><strong>What Should Go in Claims:</strong> Only include non-sensitive, minimal information necessary for authorization decisions (e.g., user ID, roles, permissions). Avoid storing large amounts of data or sensitive PII.</li>
+                <li><strong>Token TTL (Time-To-Live):</strong> Access tokens should have a short lifespan (e.g., 5-15 minutes). This limits the window of opportunity for an attacker if a token is compromised.</li>
+                <li><strong>Refresh Tokens vs. Access Tokens:</strong> For a better user experience without compromising security, use a combination of short-lived access tokens and longer-lived refresh tokens. Access tokens are sent with every API request. When an access token expires, the client uses a refresh token (sent only once, typically during login) to obtain a new access token. Refresh tokens should be stored securely (e.g., HTTP-only cookies, encrypted database) and invalidated upon logout or compromise. <code>goBastion Lib</code> provides the primitives for JWT generation and validation; the refresh token flow needs to be implemented in your application logic.</li>
+                <li><strong>Secret Management:</strong> The JWT signing secret (<code>JWTSecret</code> in <code>Config</code>) must be a strong, randomly generated string and kept absolutely confidential. Never commit it to source control.</li>
+            </ul>
+            <div class="do-dont-card do-card bg-green-900/20 border-green-500 text-green-200">
+                <h4>✅ DO: Use Short-Lived Access Tokens</h4>
+                <p>Minimize the impact of compromised access tokens by giving them a short expiration time. Pair them with refresh tokens for a seamless user experience.</p>
+            </div>
+            <div class="do-dont-card dont-card bg-red-900/20 border-red-500 text-red-200">
+                <h4>❌ DON'T: Store JWTs in Local Storage</h4>
+                <p>Storing JWTs in browser local storage makes them vulnerable to XSS attacks. Prefer HTTP-only cookies for refresh tokens, and memory for access tokens in SPAs.</p>
+            </div>
+
+            <h3 class="text-3xl font-semibold text-slate-200 mt-10 mb-4">CSRF (Cross-Site Request Forgery)</h3>
+            <p class="text-slate-300">The <code>CSRFMiddleware</code> protects against attacks where an attacker tricks a user's browser into making an unwanted request to your application while the user is authenticated.</p>
+            <ul class="list-disc list-inside ml-4 space-y-2 text-slate-300">
+                <li><strong>When Needed:</strong> CSRF protection is essential for APIs consumed by web browsers, especially when those APIs rely on session cookies for authentication. The double-submit cookie pattern used by <code>goBastion Lib</code> is effective in this scenario.</li>
+                <li><strong>Not Needed for Pure Non-Browser Clients:</strong> If your API is exclusively consumed by mobile apps, desktop applications, or other backend services that do not send cookies automatically with requests, CSRF protection is generally not required. These clients typically use token-based authentication (like JWT in the <code>Authorization</code> header) which is not vulnerable to CSRF.</li>
+                <li><strong>Implementation Details:</strong> The middleware sets an HTTP-only cookie (<code>csrf_token</code>) and expects the same token to be sent back in the <code>X-CSRF-Token</code> header for state-changing requests (POST, PUT, DELETE, PATCH).</li>
+            </ul>
+            <div class="do-dont-card do-card bg-green-900/20 border-green-500 text-green-200">
+                <h4>✅ DO: Enable CSRF for Browser-Accessed APIs</h4>
+                <p>If your API is accessed by web browsers and uses cookie-based sessions, enable and properly configure the <code>CSRFMiddleware</code>.</p>
+            </div>
+            <div class="do-dont-card dont-card bg-red-900/20 border-red-500 text-red-200">
+                <h4>❌ DON'T: Forget to Send CSRF Token from Frontend</h4>
+                <p>Your frontend application must be configured to read the <code>csrf_token</code> cookie and send its value in the <code>X-CSRF-Token</code> header for all unsafe HTTP requests.</p>
+            </div>
+
+            <h3 class="text-3xl font-semibold text-slate-200 mt-10 mb-4">Rate Limiting</h3>
+            <p class="text-slate-300">The <code>RateLimit</code> middleware helps prevent resource exhaustion and brute-force attacks by restricting the number of requests from a single client (IP address) over a period.</p>
+            <ul class="list-disc list-inside ml-4 space-y-2 text-slate-300">
+                <li><strong>Protecting Login Endpoints:</strong> It's critical to apply rate limiting to login and password reset endpoints to prevent brute-force credential stuffing attacks.</li>
+                <li><strong>Per-IP vs. Per-User Strategies:</strong> <code>goBastion Lib</code>'s default rate limiter is IP-based. For more granular control, you might implement a per-authenticated-user rate limit (after authentication middleware) or combine both.</li>
+                <li><strong>What Happens on Limit Exceed:</strong> Clients receive a <code>429 Too Many Requests</code> response. Consider adding <code>Retry-After</code> headers for better client behavior.</li>
+            </ul>
+            <div class="do-dont-card do-card bg-green-900/20 border-green-500 text-green-200">
+                <h4>✅ DO: Apply Rate Limiting to All Public Endpoints</h4>
+                <p>Even seemingly harmless endpoints can be abused. Apply global rate limiting and consider stricter limits for sensitive operations.</p>
+            </div>
+            <div class="do-dont-card dont-card bg-red-900/20 border-red-500 text-red-200">
+                <h4>❌ DON'T: Set Rate Limits Too High or Too Low</h4>
+                <p>Too high, and it's ineffective. Too low, and legitimate users get blocked. Tune your rate limits based on expected traffic and user behavior.</p>
+            </div>
+        </section>
+
+        <section id="api-style-guide" class="section-content space-y-6">
+            <h2 class="text-4xl font-bold text-slate-100 mb-6">API Style Guide (Do & Don’t)</h2>
+            <p class="text-lg text-slate-300">A consistent API style improves usability, reduces cognitive load for developers, and makes your API a pleasure to work with. Follow these guidelines when designing your <code>goBastion Lib</code> APIs.</p>
+
+            <h3 class="text-3xl font-semibold text-slate-200 mt-10 mb-4">Endpoint Naming & Structure</h3>
+            <div class="do-dont-card do-card bg-green-900/20 border-green-500 text-green-200">
+                <h4>✅ DO: Use Nouns for Resources, Pluralized</h4>
+                <p>API endpoints should represent resources, and resources are typically nouns. Use plural nouns to indicate collections.</p>
+                <pre><code>GET /users
+GET /products/{id}
+POST /orders</code></pre>
+            </div>
+            <div class="do-dont-card dont-card bg-red-900/20 border-red-500 text-red-200">
+                <h4>❌ DON'T: Use Verbs in Endpoint Paths</h4>
+                <p>HTTP methods (GET, POST, PUT, DELETE) already convey the action. Avoid redundant verbs in the path.</p>
+                <pre><code>❌ GET /getAllUsers
+❌ POST /createProduct</code></pre>
+            </div>
+
+            <div class="do-dont-card do-card bg-green-900/20 border-green-500 text-green-200">
+                <h4>✅ DO: Use Kebab-Case for Path Segments</h4>
+                <p>For multi-word path segments, use kebab-case (hyphen-separated lowercase).</p>
+                <pre><code>GET /user-profiles/{id}
+POST /api-keys</code></pre>
+            </div>
+            <div class="do-dont-card dont-card bg-red-900/20 border-red-500 text-red-200">
+                <h4>❌ DON'T: Use CamelCase or Snake_Case for Path Segments</h4>
+                <p>These are harder to read and type in URLs.</p>
+                <pre><code>❌ GET /userProfiles/{id}
+❌ POST /api_keys</code></pre>
+            </div>
+
+            <div class="do-dont-card do-card bg-green-900/20 border-green-500 text-green-200">
+                <h4>✅ DO: Use Query Parameters for Filtering, Sorting, Pagination</h4>
+                <p>Actions that filter, sort, or paginate a collection should use query parameters.</p>
+                <pre><code>GET /users?status=active&amp;sort=name&amp;page=1&amp;limit=10</code></pre>
+            </div>
+            <div class="do-dont-card dont-card bg-red-900/20 border-red-500 text-red-200">
+                <h4>❌ DON'T: Use Path Segments for Filtering/Sorting</h4>
+                <p>This leads to an explosion of endpoints and makes the API less flexible.</p>
+                <pre><code>❌ GET /users/active/sortedByName/page/1</code></pre>
+            </div>
+
+            <h3 class="text-3xl font-semibold text-slate-200 mt-10 mb-4">HTTP Status Codes</h3>
+            <p class="text-slate-300">Return meaningful HTTP status codes to indicate the outcome of an API request.</p>
+            <div class="do-dont-card do-card bg-green-900/20 border-green-500 text-green-200">
+                <h4>✅ DO: Use Standard HTTP Status Codes Appropriately</h4>
+                <p>
+                    <strong>200 OK:</strong> Generic success.
+                    <strong>201 Created:</strong> Resource successfully created (include <code>Location</code> header).
+                    <strong>204 No Content:</strong> Successful request with no response body (e.g., DELETE).
+                    <strong>400 Bad Request:</strong> Client-side input validation failure.
+                    <strong>401 Unauthorized:</strong> Authentication required or failed.
+                    <strong>403 Forbidden:</strong> Authenticated, but not authorized to access.
+                    <strong>404 Not Found:</strong> Resource does not exist.
+                    <strong>409 Conflict:</strong> Resource already exists or a conflict occurred.
+                    <strong>422 Unprocessable Entity:</strong> Semantic validation failure (e.g., business rule violation).
+                    <strong>429 Too Many Requests:</strong> Rate limit exceeded.
+                    <strong>500 Internal Server Error:</strong> Unexpected server-side error.
+                </p>
+            </div>
+            <div class="do-dont-card dont-card bg-red-900/20 border-red-500 text-red-200">
+                <h4>❌ DON'T: Misuse Status Codes or Always Return 200 OK</h4>
+                <p>Returning <code>200 OK</code> for an error state (e.g., validation failure) makes it harder for clients to correctly interpret responses. Avoid using <code>500</code> for client-side errors.</p>
+            </div>
+
+            <h3 class="text-3xl font-semibold text-slate-200 mt-10 mb-4">JSON Field Naming Conventions</h3>
+            <div class="do-dont-card do-card bg-green-900/20 border-green-500 text-green-200">
+                <h4>✅ DO: Use Snake_Case for JSON Field Names</h4>
+                <p>While Go prefers <code>CamelCase</code> for struct fields, <code>snake_case</code> is a common and readable convention for JSON payloads in many API ecosystems.</p>
+                <pre><code class="language-json">{
+    "user_id": "123",
+    "first_name": "John"
+}
+</code></pre>
+            </div>
+            <div class="do-dont-card dont-card bg-red-900/20 border-red-500 text-red-200">
+                <h4>❌ DON'T: Mix Naming Conventions or Use PascalCase/CamelCase</h4>
+                <p>Inconsistent naming is confusing. Avoid <code>PascalCase</code> or <code>camelCase</code> for JSON fields if your API standard is <code>snake_case</code>.</p>
+                <pre><code class="language-json">❌ { "userId": "123", "firstName": "John" }
+❌ { "UserID": "123", "FirstName": "John" }
+</code></pre>
+            </div>
+
+            <h3 class="text-3xl font-semibold text-slate-200 mt-10 mb-4">Error Response Format</h3>
+            <div class="do-dont-card do-card bg-green-900/20 border-green-500 text-green-200">
+                <h4>✅ DO: Provide Consistent and Detailed Error Objects</h4>
+                <p>Always return a structured error object that includes a machine-readable <code>code</code> and a human-readable <code>message</code>. This allows clients to programmatically handle errors and display user-friendly messages.</p>
+                <pre><code class="language-json">{
+    "error": {
+        "code": "invalid_credentials",
+        "message": "The username or password provided is incorrect."
+    }
+}
+</code></pre>
+            </div>
+            <div class="do-dont-card dont-card bg-red-900/20 border-red-500 text-red-200">
+                <h4>❌ DON'T: Return Plain Strings or Inconsistent Error Formats</h4>
+                <p>Avoid returning just a plain string for an error, or having different error structures for different endpoints. This makes error handling on the client side a nightmare.</p>
+                <pre><code class="language-json">❌ "Invalid credentials"
+❌ { "errorMessage": "Invalid credentials" } // Inconsistent field name
+</code></pre>
+            </div>
+        </section>
+
+        <section id="examples-catalog" class="section-content space-y-6">
+            <h2 class="text-4xl font-bold text-slate-100 mb-6">Examples Catalog</h2>
+            <p class="text-lg text-slate-300">This catalog provides a curated set of runnable examples demonstrating common real-world use cases of the <code>goBastion Lib</code> framework. Each example is a self-contained mini-application designed to showcase a specific feature or integration pattern.</p>
+            <p class="text-lg text-slate-300">These examples are built on top of the <code>goBastion Lib</code> router and application framework, focusing exclusively on JSON-based backend APIs.</p>
+
+            <h3 class="text-3xl font-semibold text-slate-200 mt-8 mb-4">Filter Examples by Tag:</h3>
+            <div class="flex flex-wrap gap-2 mb-8" id="example-tag-filters">
+                <button class="tag-filter-btn px-4 py-2 rounded-full bg-indigo-600 text-white text-sm font-medium hover:bg-indigo-700 transition-colors duration-200" data-tag="all">All</button>
+                <button class="tag-filter-btn px-4 py-2 rounded-full bg-slate-700 text-slate-300 text-sm font-medium hover:bg-slate-600 transition-colors duration-200" data-tag="basics">Basics</button>
+                <button class="tag-filter-btn px-4 py-2 rounded-full bg-slate-700 text-slate-300 text-sm font-medium hover:bg-slate-600 transition-colors duration-200" data-tag="auth">Auth</button>
+                <button class="tag-filter-btn px-4 py-2 rounded-full bg-slate-700 text-slate-300 text-sm font-medium hover:bg-slate-600 transition-colors duration-200" data-tag="security">Security</button>
+                <button class="tag-filter-btn px-4 py-2 rounded-full bg-slate-700 text-slate-300 text-sm font-medium hover:bg-slate-600 transition-colors duration-200" data-tag="database">Database</button>
+                <button class="tag-filter-btn px-4 py-2 rounded-full bg-slate-700 text-slate-300 text-sm font-medium hover:bg-slate-600 transition-colors duration-200" data-tag="docker">Docker</button>
+                <button class="tag-filter-btn px-4 py-2 rounded-full bg-slate-700 text-slate-300 text-sm font-medium hover:bg-slate-600 transition-colors duration-200" data-tag="files">Files</button>
+                <button class="tag-filter-btn px-4 py-2 rounded-full bg-slate-700 text-slate-300 text-sm font-medium hover:bg-slate-600 transition-colors duration-200" data-tag="real-time">Real-time</button>
+                <button class="tag-filter-btn px-4 py-2 rounded-full bg-slate-700 text-slate-300 text-sm font-medium hover:bg-slate-600 transition-colors duration-200" data-tag="docs">Docs</button>
+                <button class="tag-filter-btn px-4 py-2 rounded-full bg-slate-700 text-slate-300 text-sm font-medium hover:bg-slate-600 transition-colors duration-200" data-tag="testing">Testing</button>
+                <button class="tag-filter-btn px-4 py-2 rounded-full bg-slate-700 text-slate-300 text-sm font-medium hover:bg-slate-600 transition-colors duration-200" data-tag="deployment">Deployment</button>
+                <button class="tag-filter-btn px-4 py-2 rounded-full bg-slate-700 text-slate-300 text-sm font-medium hover:bg-slate-600 transition-colors duration-200" data-tag="resilience">Resilience</button>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6" id="examples-grid">
+
+                <!-- Example Card Template -->
+                <a href="examples/hello-404" class="example-card bg-slate-900/70 backdrop-blur-sm shadow-lg border border-slate-800 hover:border-indigo-500/50" data-tags="basics routing">
+                    <div>
+                        <h4 class="text-xl font-semibold text-indigo-300 mb-2">Hello World + 404 Handler</h4>
+                        <p class="text-slate-400 text-sm mb-4">A minimal API with a basic "Hello, World!" endpoint and a custom JSON 404 Not Found handler. Demonstrates fundamental routing and error handling.</p>
+                    </div>
+                    <div class="flex flex-wrap gap-2 tags mb-4">
+                        <span class="bg-slate-700 text-slate-400">Basics</span>
+                        <span class="bg-slate-700 text-slate-400">Routing</span>
+                    </div>
+                    <div class="flex items-center gap-2 stack-badges">
+                        <img src="https://img.shields.io/badge/Go-00ADD8?style=for-the-badge&logo=go&logoColor=white" alt="Go">
+                        <span class="text-sm text-slate-500">bastionrouter</span>
+                    </div>
+                </a>
+
+                <a href="examples/auth-jwt" class="example-card bg-slate-900/70 backdrop-blur-sm shadow-lg border border-slate-800 hover:border-indigo-500/50" data-tags="auth jwt security">
+                    <div>
+                        <h4 class="text-xl font-semibold text-indigo-300 mb-2">JWT Auth (Core)</h4>
+                        <p class="text-slate-400 text-sm mb-4">Illustrates core JWT authentication: a login endpoint to issue tokens and a protected endpoint requiring a valid JWT for access.</p>
+                    </div>
+                    <div class="flex flex-wrap gap-2 tags mb-4">
+                        <span class="bg-slate-700 text-slate-400">Auth</span>
+                        <span class="bg-slate-700 text-slate-400">JWT</span>
+                        <span class="bg-slate-700 text-slate-400">Security</span>
+                    </div>
+                    <div class="flex items-center gap-2 stack-badges">
+                        <img src="https://img.shields.io/badge/Go-00ADD8?style=for-the-badge&logo=go&logoColor=white" alt="Go">
+                        <span class="text-sm text-slate-500">bastionrouter</span>
+                    </div>
+                </a>
+
+                <a href="examples/auth-jwt-docker-postgres" class="example-card bg-slate-900/70 backdrop-blur-sm shadow-lg border border-slate-800 hover:border-indigo-500/50" data-tags="auth jwt database docker postgresql security">
+                    <div>
+                        <h4 class="text-xl font-semibold text-indigo-300 mb-2">Auth + JWT + Docker + Postgres</h4>
+                        <p class="text-slate-400 text-sm mb-4">A more realistic authentication setup featuring user registration, login with JWT, and role-based authorization, all backed by a PostgreSQL database and orchestrated with Docker Compose.</p>
+                    </div>
+                    <div class="flex flex-wrap gap-2 tags mb-4">
+                        <span class="bg-slate-700 text-slate-400">Auth</span>
+                        <span class="bg-slate-700 text-slate-400">JWT</span>
+                        <span class="bg-slate-700 text-slate-400">Database</span>
+                        <span class="bg-slate-700 text-slate-400">Docker</span>
+                        <span class="bg-slate-700 text-slate-400">PostgreSQL</span>
+                        <span class="bg-slate-700 text-slate-400">Security</span>
+                    </div>
+                    <div class="flex items-center gap-2 stack-badges">
+                        <img src="https://img.shields.io/badge/Go-00ADD8?style=for-the-badge&logo=go&logoColor=white" alt="Go">
+                        <img src="https://img.shields.io/badge/PostgreSQL-316192?style=for-the-badge&logo=postgresql&logoColor=white" alt="PostgreSQL">
+                        <img src="https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white" alt="Docker">
+                        <span class="text-sm text-slate-500">bastionrouter</span>
+                    </div>
+                </a>
+
+                <a href="examples/csrf" class="example-card bg-slate-900/70 backdrop-blur-sm shadow-lg border border-slate-800 hover:border-indigo-500/50" data-tags="security csrf">
+                    <div>
+                        <h4 class="text-xl font-semibold text-indigo-300 mb-2">CSRF Protection</h4>
+                        <p class="text-slate-400 text-sm mb-4">Demonstrates how to implement Cross-Site Request Forgery (CSRF) protection using the double-submit cookie pattern for web-facing APIs.</p>
+                    </div>
+                    <div class="flex flex-wrap gap-2 tags mb-4">
+                        <span class="bg-slate-700 text-slate-400">Security</span>
+                        <span class="bg-slate-700 text-slate-400">CSRF</span>
+                    </div>
+                    <div class="flex items-center gap-2 stack-badges">
+                        <img src="https://img.shields.io/badge/Go-00ADD8?style=for-the-badge&logo=go&logoColor=white" alt="Go">
+                        <span class="text-sm text-slate-500">bastionrouter</span>
+                    </div>
+                </a>
+
+                <a href="examples/gorm-postgres-crud" class="example-card bg-slate-900/70 backdrop-blur-sm shadow-lg border border-slate-800 hover:border-indigo-500/50" data-tags="database gorm postgresql crud">
+                    <div>
+                        <h4 class="text-xl font-semibold text-indigo-300 mb-2">GORM + PostgreSQL (CRUD API)</h4>
+                        <p class="text-slate-400 text-sm mb-4">A complete CRUD API for a <code>Product</code> resource, showcasing integration with GORM and PostgreSQL for database persistence, managed via Docker Compose.</p>
+                    </div>
+                    <div class="flex flex-wrap gap-2 tags mb-4">
+                        <span class="bg-slate-700 text-slate-400">Database</span>
+                        <span class="bg-slate-700 text-slate-400">GORM</span>
+                        <span class="bg-slate-700 text-slate-400">PostgreSQL</span>
+                        <span class="bg-slate-700 text-slate-400">CRUD</span>
+                    </div>
+                    <div class="flex items-center gap-2 stack-badges">
+                        <img src="https://img.shields.io/badge/Go-00ADD8?style=for-the-badge&logo=go&logoColor=white" alt="Go">
+                        <img src="https://img.shields.io/badge/PostgreSQL-316192?style=for-the-badge&logo=postgresql&logoColor=white" alt="PostgreSQL">
+                        <img src="https://img.shields.io/badge/GORM-8892B2?style=for-the-badge&logo=gopher&logoColor=white" alt="GORM">
+                        <span class="text-sm text-slate-500">bastionrouter</span>
+                    </div>
+                </a>
+
+                <a href="examples/file-upload" class="example-card bg-slate-900/70 backdrop-blur-sm shadow-lg border border-slate-800 hover:border-indigo-500/50" data-tags="files multipart">
+                    <div>
+                        <h4 class="text-xl font-semibold text-indigo-300 mb-2">File Upload</h4>
+                        <p class="text-slate-400 text-sm mb-4">Handles multipart form data for file uploads, saves files to disk, and serves them back, including basic security considerations.</p>
+                    </div>
+                    <div class="flex flex-wrap gap-2 tags mb-4">
+                        <span class="bg-slate-700 text-slate-400">Files</span>
+                        <span class="bg-slate-700 text-slate-400">Multipart</span>
+                    </div>
+                    <div class="flex items-center gap-2 stack-badges">
+                        <img src="https://img.shields.io/badge/Go-00ADD8?style=for-the-badge&logo=go&logoColor=white" alt="Go">
+                        <span class="text-sm text-slate-500">bastionrouter</span>
+                    </div>
+                </a>
+
+                <a href="examples/websocket" class="example-card bg-slate-900/70 backdrop-blur-sm shadow-lg border border-slate-800 hover:border-indigo-500/50" data-tags="real-time websocket">
+                    <div>
+                        <h4 class="text-xl font-semibold text-indigo-300 mb-2">WebSocket Echo Server</h4>
+                        <p class="text-slate-400 text-sm mb-4">A simple echo WebSocket server demonstrating how to upgrade HTTP connections to WebSockets and handle real-time communication.</p>
+                    </div>
+                    <div class="flex flex-wrap gap-2 tags mb-4">
+                        <span class="bg-slate-700 text-slate-400">Real-time</span>
+                        <span class="bg-slate-700 text-slate-400">WebSocket</span>
+                    </div>
+                    <div class="flex items-center gap-2 stack-badges">
+                        <img src="https://img.shields.io/badge/Go-00ADD8?style=for-the-badge&logo=go&logoColor=white" alt="Go">
+                        <span class="text-sm text-slate-500">bastionrouter</span>
+                    </div>
+                </a>
+
+                <a href="examples/openapi-swagger" class="example-card bg-slate-900/70 backdrop-blur-sm shadow-lg border border-slate-800 hover:border-indigo-500/50" data-tags="docs openapi swagger">
+                    <div>
+                        <h4 class="text-xl font-semibold text-indigo-300 mb-2">OpenAPI + Swagger Docs</h4>
+                        <p class="text-slate-400 text-sm mb-4">Shows how to serve an OpenAPI specification file and integrate with Swagger UI for interactive API documentation directly from your application.</p>
+                    </div>
+                    <div class="flex flex-wrap gap-2 tags mb-4">
+                        <span class="bg-slate-700 text-slate-400">Docs</span>
+                        <span class="bg-slate-700 text-slate-400">OpenAPI</span>
+                        <span class="bg-slate-700 text-slate-400">Swagger</span>
+                    </div>
+                    <div class="flex items-center gap-2 stack-badges">
+                        <img src="https://img.shields.io/badge/Go-00ADD8?style=for-the-badge&logo=go&logoColor=white" alt="Go">
+                        <span class="text-sm text-slate-500">bastionrouter</span>
+                    </div>
+                </a>
+
+                <a href="examples/testing" class="example-card bg-slate-900/70 backdrop-blur-sm shadow-lg border border-slate-800 hover:border-indigo-500/50" data-tags="testing quality">
+                    <div>
+                        <h4 class="text-xl font-semibold text-indigo-300 mb-2">Unit Testing & Integration Testing</h4>
+                        <p class="text-slate-400 text-sm mb-4">Provides examples of writing unit tests for handlers and integration tests for the full router and middleware chain using <code>net/http/httptest</code>.</p>
+                    </div>
+                    <div class="flex flex-wrap gap-2 tags mb-4">
+                        <span class="bg-slate-700 text-slate-400">Testing</span>
+                        <span class="bg-slate-700 text-slate-400">Quality</span>
+                    </div>
+                    <div class="flex items-center gap-2 stack-badges">
+                        <img src="https://img.shields.io/badge/Go-00ADD8?style=for-the-badge&logo=go&logoColor=white" alt="Go">
+                        <img src="https://img.shields.io/badge/Testify-blue?style=for-the-badge&logo=go&logoColor=white" alt="Testify">
+                        <span class="text-sm text-slate-500">bastionrouter</span>
+                    </div>
+                </a>
+
+                <a href="examples/docker-nginx" class="example-card bg-slate-900/70 backdrop-blur-sm shadow-lg border border-slate-800 hover:border-indigo-500/50" data-tags="docker nginx deployment">
+                    <div>
+                        <h4 class="text-xl font-semibold text-indigo-300 mb-2">Docker + Nginx Reverse Proxy</h4>
+                        <p class="text-slate-400 text-sm mb-4">Demonstrates deploying a <code>goBastion Lib</code> application behind an Nginx reverse proxy using Docker Compose, a common production setup.</p>
+                    </div>
+                    <div class="flex flex-wrap gap-2 tags mb-4">
+                        <span class="bg-slate-700 text-slate-400">Docker</span>
+                        <span class="bg-slate-700 text-slate-400">Nginx</span>
+                        <span class="bg-slate-700 text-slate-400">Deployment</span>
+                    </div>
+                    <div class="flex items-center gap-2 stack-badges">
+                        <img src="https://img.shields.io/badge/Go-00ADD8?style=for-the-badge&logo=go&logoColor=white" alt="Go">
+                        <img src="https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white" alt="Docker">
+                        <img src="https://img.shields.io/badge/Nginx-009639?style=for-the-badge&logo=nginx&logoColor=white" alt="Nginx">
+                        <span class="text-sm text-slate-500">bastionrouter</span>
+                    </div>
+                </a>
+
+                <a href="examples/graceful-shutdown" class="example-card bg-slate-900/70 backdrop-blur-sm shadow-lg border border-slate-800 hover:border-indigo-500/50" data-tags="resilience signals">
+                    <div>
+                        <h4 class="text-xl font-semibold text-indigo-300 mb-2">Graceful Shutdown</h4>
+                        <p class="text-slate-400 text-sm mb-4">Illustrates how to implement graceful server shutdown, allowing ongoing requests to complete before the application terminates, crucial for resilient deployments.</p>
+                    </div>
+                    <div class="flex flex-wrap gap-2 tags mb-4">
+                        <span class="bg-slate-700 text-slate-400">Resilience</span>
+                        <span class="bg-slate-700 text-slate-400">Signals</span>
+                    </div>
+                    <div class="flex items-center gap-2 stack-badges">
+                        <img src="https://img.shields.io/badge/Go-00ADD8?style=for-the-badge&logo=go&logoColor=white" alt="Go">
+                        <span class="text-sm text-slate-500">bastionrouter</span>
+                    </div>
+                </a>
+
+            </div>
+
+            <h3 class="text-3xl font-semibold text-slate-200 mt-12 mb-4">Featured Flow: Building a Production-Ready API</h3>
+            <p class="text-slate-300 mb-8">Follow these steps to progressively build a robust API, combining several <code>goBastion Lib</code> features and best practices.</p>
+
+            <div class="relative border-l-2 border-slate-700 ml-4 pl-6 space-y-10">
+                <div class="absolute w-4 h-4 bg-indigo-500 rounded-full -left-2 top-0"></div>
+                <div class="absolute w-4 h-4 bg-indigo-500 rounded-full -left-2 top-[calc(25%-8px)]"></div>
+                <div class="absolute w-4 h-4 bg-indigo-500 rounded-full -left-2 top-[calc(50%-8px)]"></div>
+                <div class="absolute w-4 h-4 bg-indigo-500 rounded-full -left-2 top-[calc(75%-8px)]"></div>
+                <div class="absolute w-4 h-4 bg-indigo-500 rounded-full -left-2 bottom-0"></div>
+
+                <div class="relative bg-slate-900/70 backdrop-blur-sm p-6 rounded-xl shadow-lg border border-slate-800">
+                    <h4 class="text-2xl font-semibold text-indigo-300 mb-2">Step 1: Start with the Basics</h4>
+                    <p class="text-slate-400 mb-4">Get your API up and running with a simple endpoint and a custom 404 handler.</p>
+                    <a href="examples/hello-404" class="inline-flex items-center px-4 py-2 border border-indigo-500 text-sm font-medium rounded-md text-indigo-300 hover:bg-indigo-500/20 transition-colors duration-200">
+                        Explore Hello World + 404
+                    </a>
+                </div>
+
+                <div class="relative bg-slate-900/70 backdrop-blur-sm p-6 rounded-xl shadow-lg border border-slate-800">
+                    <h4 class="text-2xl font-semibold text-indigo-300 mb-2">Step 2: Implement Authentication</h4>
+                    <p class="text-slate-400 mb-4">Add user authentication using JWT, a cornerstone for most modern APIs.</p>
+                    <a href="examples/auth-jwt" class="inline-flex items-center px-4 py-2 border border-indigo-500 text-sm font-medium rounded-md text-indigo-300 hover:bg-indigo-500/20 transition-colors duration-200">
+                        Explore JWT Auth
+                    </a>
+                </div>
+
+                <div class="relative bg-slate-900/70 backdrop-blur-sm p-6 rounded-xl shadow-lg border border-slate-800">
+                    <h4 class="text-2xl font-semibold text-indigo-300 mb-2">Step 3: Add Data Persistence</h4>
+                    <p class="text-slate-400 mb-4">Integrate a database (PostgreSQL with GORM) to manage your application's data, including user accounts.</p>
+                    <a href="examples/gorm-postgres-crud" class="inline-flex items-center px-4 py-2 border border-indigo-500 text-sm font-medium rounded-md text-indigo-300 hover:bg-indigo-500/20 transition-colors duration-200">
+                        Explore GORM + PostgreSQL CRUD
+                    </a>
+                    <span class="mx-2 text-slate-500">or combine with</span>
+                    <a href="examples/auth-jwt-docker-postgres" class="inline-flex items-center px-4 py-2 border border-indigo-500 text-sm font-medium rounded-md text-indigo-300 hover:bg-indigo-500/20 transition-colors duration-200">
+                        Auth + JWT + Docker + Postgres
+                    </a>
+                </div>
+
+                <div class="relative bg-slate-900/70 backdrop-blur-sm p-6 rounded-xl shadow-lg border border-slate-800">
+                    <h4 class="text-2xl font-semibold text-indigo-300 mb-2">Step 4: Ensure Robustness and Deploy</h4>
+                    <p class="text-slate-400 mb-4">Implement graceful shutdown for resilience and set up a production-like deployment with Nginx as a reverse proxy.</p>
+                    <a href="examples/graceful-shutdown" class="inline-flex items-center px-4 py-2 border border-indigo-500 text-sm font-medium rounded-md text-indigo-300 hover:bg-indigo-500/20 transition-colors duration-200">
+                        Explore Graceful Shutdown
+                    </a>
+                    <span class="mx-2 text-slate-500">and</span>
+                    <a href="examples/docker-nginx" class="inline-flex items-center px-4 py-2 border border-indigo-500 text-sm font-medium rounded-md text-indigo-300 hover:bg-indigo-500/20 transition-colors duration-200">
+                        Docker + Nginx Proxy
+                    </a>
+                </div>
+            </div>
+            <p class="mt-6 text-slate-300">For detailed instructions on how to run and test each example, please refer to the <code>README.md</code> file within each example's directory.</p>
+        </section>
+
+        <section id="testing-tooling" class="section-content space-y-6">
+            <h2 class="text-4xl font-bold text-slate-100 mb-6">Testing & Tooling</h2>
+            <p class="text-lg text-slate-300">Thorough testing is crucial for ensuring the reliability and correctness of your API. <code>goBastion Lib</code> applications can be tested at multiple levels: unit, integration, and end-to-end.</p>
+
+            <h3 class="text-3xl font-semibold text-slate-200 mt-10 mb-4">Unit Tests (<code>go test</code>)</h3>
+            <p class="text-slate-300">Unit tests focus on individual components (functions, methods) in isolation. For <code>goBastion Lib</code>, this typically means testing your handlers, service logic, and utility functions without starting a full HTTP server.</p>
+            <pre><code class="language-go">// internal/services/user_service_test.go
+package services_test
+
+import (
+    "my-go-app/internal/models"
+    "my-go-app/internal/services"
+    "testing"
+)
+
+func TestUserService_CreateUser(t *testing.T) {
+    svc := services.NewUserService() // Mock repository if needed
+
+    testCases := []struct {
+        name    string
+        request models.CreateUserRequest
+        wantErr bool
+    }{
+        {
+            name:    "Valid user creation",
+            request: models.CreateUserRequest{Username: "test", Email: "test@example.com", Password: "pass"},
+            wantErr: false,
+        },
+        {
+            name:    "Missing username",
+            request: models.CreateUserRequest{Username: "", Email: "test@example.com", Password: "pass"},
+            wantErr: true,
+        },
+    }
+
+    for _, tc := range testCases {
+        t.Run(tc.name, func(t *testing.T) {
+            _, err := svc.CreateUser(tc.request)
+            if (err != nil) != tc.wantErr {
+                t.Errorf("CreateUser() error = %v, wantErr %v", err, tc.wantErr)
+            }
+        })
+    }
+}
+</code></pre>
+            <p class="text-slate-300">Run unit tests with: <code>go test ./internal/services/...</code></p>
+
+            <h3 class="text-3xl font-semibold text-slate-200 mt-10 mb-4">Integration Tests with <code>net/http/httptest</code></h3>
+            <p class="text-slate-300">For testing your HTTP handlers and middleware chain without deploying the actual server, Go's standard library provides <code>net/http/httptest</code>. This allows you to simulate HTTP requests and inspect responses in memory.</p>
+            <pre><code class="language-go">// internal/api/handlers/user_handlers_test.go
+package handlers_test
+
+import (
+    "bytes"
+    "encoding/json"
+    "net/http"
+    "net/http/httptest"
+    "testing"
+
+    "github.com/alejandrombjs/go-bastion-lib/pkg/bastion"
+    "github.com/alejandrombjs/go-bastion-lib/pkg/middleware"
+    "github.com/alejandrombjs/go-bastion-lib/pkg/router"
+    // Assuming your handlers are in this package
+)
+
+func TestCreateUserHandler(t *testing.T) {
+    // Setup a minimal app and router for testing
+    cfg := bastion.DefaultConfig()
+    cfg.EnableJWT = true
+    cfg.JWTSecret = "super-secret-jwt-key-that-is-at-least-32-bytes-long" // Use a test secret
+    app := bastion.NewApp(cfg)
+    r := app.Router()
+
+    // Register middleware and route for testing
+    r.Use(middleware.DefaultRecovery()) // Catch panics
+    apiGroup := r.Group("/api")
+    apiGroup.Use(middleware.JWTAuth(cfg.JWTSecret)) // Apply JWT middleware
+    apiGroup.POST("/users", CreateUser) // Assuming CreateUser is exported from handlers package
+
+    // Simulate a login to get a token for protected routes
+    loginBody := []byte(`{"username":"testuser","password":"testpass"}`)
+    loginReq := httptest.NewRequest(http.MethodPost, "/api/auth/login", bytes.NewBuffer(loginBody))
+    loginReq.Header.Set("Content-Type", "application/json")
+    loginRec := httptest.NewRecorder()
+    // You'd need to expose login handler or mock token generation
+    // For this example, let's manually generate a token
+    token, _ := security.GenerateAccessToken("testuser", time.Minute, cfg.JWTSecret, nil)
+
+
+    // Test case: Successful user creation
+    body := []byte(`{"username":"testuser","email":"test@example.com","password":"password"}`)
+    req := httptest.NewRequest(http.MethodPost, "/api/users", bytes.NewBuffer(body))
+    req.Header.Set("Content-Type", "application/json")
+    req.Header.Set("Authorization", "Bearer " + token) // Add JWT
+    rec := httptest.NewRecorder()
+
+    r.Handler().ServeHTTP(rec, req) // Serve the HTTP request
+
+    if rec.Code != http.StatusCreated {
+        t.Errorf("Expected status %d, got %d. Body: %s", http.StatusCreated, rec.Code, rec.Body.String())
+    }
+
+    var res map[string]any
+    json.Unmarshal(rec.Body.Bytes(), &res)
+    if res["data"] == nil {
+        t.Errorf("Expected data in response, got %v", res)
+    }
+}
+</code></pre>
+            <p class="text-slate-300">Run integration tests with: <code>go test ./internal/api/handlers/...</code></p>
+
+            <h3 class="text-3xl font-semibold text-slate-200 mt-10 mb-4">Automated API Testing Flow (End-to-End)</h3>
+            <p class="text-slate-300">For true end-to-end testing, you need to start your actual application server and then make real HTTP requests to it. The <code>scripts/test-api.sh</code> script provides an example of this approach.</p>
+            <pre><code class="language-bash"># From your project root
+./scripts/test-api.sh</code></pre>
+            <p class="text-slate-300">This script:</p>
+            <ul class="list-disc list-inside ml-4 space-y-1 text-slate-300">
+                <li>Starts your <code>goBastion Lib</code> application in the background.</li>
+                <li>Waits for the server to become responsive (by polling <code>/api/health</code>).</li>
+                <li>Executes a series of <code>curl</code> commands, covering various API endpoints and scenarios (happy path, error cases, authentication flows).</li>
+                <li>Asserts on HTTP status codes and optionally on JSON response content using <code>jq</code>.</li>
+                <li>Provides a summary of passed and failed tests.</li>
+                <li>Gracefully shuts down the server upon completion.</li>
+            </ul>
+            <div class="callout callout-info bg-blue-900/20 border-blue-500 text-blue-200">
+                <h4>Testing JWT-Protected Routes</h4>
+                <p>When testing protected routes, your test script must first perform a login request to obtain a valid JWT. This token then needs to be included in the <code>Authorization: Bearer &lt;TOKEN&gt;</code> header for all subsequent requests to protected endpoints.</p>
+            </div>
+        </section>
+
+        <section id="performance-deployment" class="section-content space-y-6">
+            <h2 class="text-4xl font-bold text-slate-100 mb-6">Performance & Deployment</h2>
+            <p class="text-lg text-slate-300"><code>goBastion Lib</code> is built on Go's high-performance <code>net/http</code> package, providing a solid foundation for scalable APIs. However, achieving true performance and scalability requires careful consideration of your application's design and deployment.</p>
+
+            <h3 class="text-3xl font-semibold text-slate-200 mt-10 mb-4">Library Behavior Under Load</h3>
+            <p class="text-slate-300">The router uses an efficient radix tree implementation for route matching, ensuring fast dispatch even with a large number of routes. Middleware are executed sequentially, so their individual performance directly impacts overall request latency. The framework itself introduces minimal overhead, allowing your application's business logic and data access patterns to be the primary determinants of performance.</p>
+
+            <h3 class="text-3xl font-semibold text-slate-200 mt-10 mb-4">Tuning Timeouts in <code>Config</code></h3>
+            <p class="text-slate-300">The <code>bastion.Config</code> allows you to configure critical HTTP server timeouts:</p>
+            <ul class="list-disc list-inside ml-4 space-y-1 text-slate-300">
+                <li><strong><code>ReadTimeout</code>:</strong> The maximum duration for reading the entire request, including the body. Prevents slow clients from holding connections open indefinitely.</li>
+                <li><strong><code>WriteTimeout</code>:</strong> The maximum duration before timing out writes of the response. Prevents slow networks from delaying server resources.</li>
+                <li><strong><code>IdleTimeout</code>:</strong> The maximum amount of time to wait for the next request when keep-alives are enabled. Helps free up resources from idle connections.</li>
+            </ul>
+            <div class="do-dont-card do-card bg-green-900/20 border-green-500 text-green-200">
+                <h4>✅ DO: Configure Realistic Timeouts</h4>
+                <p>Set timeouts based on your application's expected behavior and network conditions. Too short, and legitimate requests might fail; too long, and resources might be tied up by malicious or slow clients.</p>
+            </div>
+            <div class="do-dont-card dont-card bg-red-900/20 border-red-500 text-red-200">
+                <h4>❌ DON'T: Use Infinite Timeouts (0s) in Production</h4>
+                <p>Leaving timeouts at their zero-value (infinite) in production environments is a common cause of resource exhaustion and denial-of-service vulnerabilities.</p>
+            </div>
+
+            <h3 class="text-3xl font-semibold text-slate-200 mt-10 mb-4">Deployment Behind a Reverse Proxy</h3>
+            <p class="text-slate-300">For production deployments, it's highly recommended to run your <code>goBastion Lib</code> application behind a reverse proxy (e.g., Nginx, Caddy, HAProxy). A reverse proxy can handle:</p>
+            <ul class="list-disc list-inside ml-4 space-y-1 text-slate-300">
+                <li>SSL/TLS termination.</li>
+                <li>Load balancing across multiple instances of your Go app.</li>
+                <li>Static file serving.</li>
+                <li>Advanced caching.</li>
+                <li>Additional security layers (WAF).</li>
+            </ul>
+            <p class="text-slate-300">When behind a proxy, ensure your proxy correctly forwards client IP addresses (e.g., via <code>X-Forwarded-For</code>, <code>X-Real-IP</code> headers) so that middleware like rate limiting can function correctly.</p>
+
+            <h3 class="text-3xl font-semibold text-slate-200 mt-10 mb-4">Database Connection Pooling</h3>
+            <p class="text-slate-300">If your application interacts with a database, efficient connection management is critical for performance and scalability. Go's <code>database/sql</code> package provides built-in connection pooling.</p>
+            <div class="do-dont-card do-card bg-green-900/20 border-green-500 text-green-200">
+                <h4>✅ DO: Configure Database Connection Pool Settings</h4>
+                <p>Set <code>MaxOpenConns</code>, <code>MaxIdleConns</code>, and <code>ConnMaxLifetime</code> on your database connection pool (<code>*sql.DB</code>) to match your application's load and database server capabilities. This prevents connection storms and ensures efficient reuse of connections.</p>
+            </div>
+            <div class="do-dont-card dont-card bg-red-900/20 border-red-500 text-red-200">
+                <h4>❌ DON'T: Open a New Database Connection Per Request</h4>
+                <p>Creating a new database connection for every incoming HTTP request is extremely inefficient and will quickly exhaust your database's resources under load.</p>
+            </div>
+
+            <h3 class="text-3xl font-semibold text-slate-200 mt-10 mb-4">Efficient HTTP Client Usage</h3>
+            <p class="text-slate-300">If your application makes outbound HTTP requests to other services, reuse <code>http.Client</code> instances.</p>
+            <div class="do-dont-card do-card bg-green-900/20 border-green-500 text-green-200">
+                <h4>✅ DO: Reuse <code>http.Client</code> Instances</h4>
+                <p>Create a single <code>http.Client</code> instance (or a few for different purposes) and reuse it across your application. This allows for efficient reuse of TCP connections and reduces overhead.</p>
+                <pre><code class="language-go">var httpClient = &http.Client{
+    Timeout: 10 * time.Second,
+    Transport: &http.Transport{
+        MaxIdleConns:    100,
+        IdleConnTimeout: 90 * time.Second,
+    },
+}
+
+func callExternalAPI() {
+    resp, err := httpClient.Get("https://api.example.com/data")
+    // ...
+}
+</code></pre>
+            </div>
+            <div class="do-dont-card dont-card bg-red-900/20 border-red-500 text-red-200">
+                <h4>❌ DON'T: Create a New <code>http.Client</code> for Every Outbound Request</h4>
+                <p>Instantiating <code>&http.Client{}</code> for each request is inefficient as it prevents connection reuse and can lead to port exhaustion under high load.</p>
+            </div>
+        </section>
+
+        <section id="for-different-levels" class="section-content space-y-6">
+            <h2 class="text-4xl font-bold text-slate-100 mb-6">For Different Levels</h2>
+            <p class="text-lg text-slate-300">To cater to developers of all experience levels, this section provides guidance and examples tailored to different stages of your Go backend journey.</p>
+
+            <h3 class="text-3xl font-semibold text-slate-200 mt-10 mb-4" id="junior-devs">For Junior Developers</h3>
+            <p class="text-slate-300">If you're new to Go or backend development, focus on understanding the basics of routing, handling requests, and sending responses. Don't worry too much about complex patterns yet.</p>
+            <h4 class="text-2xl font-medium text-slate-300 mt-6 mb-3">Key Focus Areas:</h4>
+            <ul class="list-disc list-inside ml-4 space-y-1 text-slate-300">
+                <li>How to define a simple GET route.</li>
+                <li>How to extract path parameters.</li>
+                <li>How to send a basic JSON response.</li>
+                <li>Understanding the role of <code>main.go</code>.</li>
+            </ul>
+            <h4 class="text-2xl font-medium text-slate-300 mt-6 mb-3">Example: Basic CRUD for a "Todo" Item</h4>
+            <p class="text-slate-300">This example shows how to set up a simple API for managing todo items.</p>
+            <pre><code class="language-go">// cmd/todo-app/main.go
+package main
+
+import (
+    "log"
+    "strconv"
+    "sync"
+    "time"
+
+    "github.com/alejandrombjs/go-bastion-lib/pkg/bastion"
+    "github.com/alejandrombjs/go-bastion-lib/pkg/middleware"
+    "github.com/alejandrombjs/go-bastion-lib/pkg/response"
+    "github.com/alejandrombjs/go-bastion-lib/pkg/router"
+)
+
+// Simple in-memory store for todos
+type Todo struct {
+    ID        int    `json:"id"`
+    Title     string `json:"title"`
+    Completed bool   `json:"completed"`
+}
+
+var (
+    todos = make(map[int]Todo)
+    nextID = 1
+    mu    sync.Mutex
+)
+
+func main() {
+    cfg := bastion.DefaultConfig()
+    cfg.Port = 8080
+    app := bastion.NewApp(cfg)
+
+    app.Use(middleware.DefaultLogging())
+    app.Use(middleware.DefaultRecovery())
+
+    r := app.Router()
+
+    // GET /todos - List all todos
+    r.GET("/todos", func(ctx *router.Context) {
+        mu.Lock()
+        defer mu.Unlock()
+        todoList := make([]Todo, 0, len(todos))
+        for _, todo := range todos {
+            todoList = append(todoList, todo)
+        }
+        response.Success(ctx, 200, todoList)
+    })
+
+    // POST /todos - Create a new todo
+    r.POST("/todos", func(ctx *router.Context) {
+        var newTodo Todo
+        if err := ctx.BindJSON(&newTodo); err != nil {
+            response.Error(ctx, 400, "invalid_json", "Invalid request body")
+            return
+        }
+        if newTodo.Title == "" {
+            response.Error(ctx, 400, "validation_error", "Title is required")
+            return
+        }
+
+        mu.Lock()
+        defer mu.Unlock()
+        newTodo.ID = nextID
+        todos[nextID] = newTodo
+        nextID++
+        response.Created(ctx, "/todos/"+strconv.Itoa(newTodo.ID), newTodo)
+    })
+
+    // GET /todos/:id - Get a single todo
+    r.GET("/todos/:id", func(ctx *router.Context) {
+        idStr := ctx.Param("id")
+        id, err := strconv.Atoi(idStr)
+        if err != nil {
+            response.Error(ctx, 400, "invalid_id", "Invalid todo ID")
+            return
+        }
+
+        mu.Lock()
+        defer mu.Unlock()
+        todo, ok := todos[id]
+        if !ok {
+            response.Error(ctx, 404, "not_found", "Todo not found")
+            return
+        }
+        response.Success(ctx, 200, todo)
+    })
+
+    log.Printf("Todo App starting on port %d", cfg.Port)
+    if err := app.RunWithGracefulShutdown(); err != nil {
+        log.Fatalf("Todo App failed: %v", err)
+    }
+}
+</code></pre>
+            <h4 class="text-2xl font-medium text-slate-300 mt-6 mb-3">Typical Junior Mistakes & How to Avoid Them:</h4>
+            <ul class="list-disc list-inside ml-4 space-y-1 text-slate-300">
+                <li><strong>Not handling errors:</strong> Always check <code>err</code> returns and provide meaningful responses.</li>
+                <li><strong>Hardcoding values:</strong> Use <code>Config</code> for settings, not magic numbers or strings.</li>
+                <li><strong>Mixing concerns:</strong> Keep handlers focused on HTTP, not complex business logic.</li>
+                <li><strong>Ignoring middleware:</strong> Understand that middleware run before your handler and can modify the request or short-circuit it.</li>
+            </ul>
+
+            <h3 class="text-3xl font-semibold text-slate-200 mt-10 mb-4" id="mid-level-devs">For Mid-Level Developers</h3>
+            <p class="text-slate-300">You're comfortable with Go and basic API concepts. Now, focus on structuring your application, implementing authentication/authorization, and effective error handling.</p>
+            <h4 class="text-2xl font-medium text-slate-300 mt-6 mb-3">Key Focus Areas:</h4>
+            <ul class="list-disc list-inside ml-4 space-y-1 text-slate-300">
+                <li>Multi-module project structure (<code>cmd</code>, <code>internal</code>, <code>pkg</code>).</li>
+                <li>Implementing JWT authentication and authorization.</li>
+                <li>Using route groups and group-specific middleware.</li>
+                <li>Centralized error handling and custom error types.</li>
+                <li>Basic integration testing.</li>
+            </ul>
+            <h4 class="text-2xl font-medium text-slate-300 mt-6 mb-3">Example: User Management with JWT and Roles</h4>
+            <p class="text-slate-300">This example expands on the basic structure, introducing JWT authentication and a simple role-based authorization check.</p>
+            <pre><code class="language-go">// cmd/api/main.go (simplified)
+package main
+
+import (
+    "log"
+    "time"
+
+    "github.com/alejandrombjs/go-bastion-lib/pkg/bastion"
+    "github.com/alejandrombjs/go-bastion-lib/pkg/middleware"
+    "github.com/alejandrombjs/go-bastion-lib/pkg/response"
+    "github.com/alejandrombjs/go-bastion-lib/pkg/router"
+    "github.com/alejandrombjs/go-bastion-lib/pkg/security"
+    "my-go-app/internal/api/handlers" // Assuming handlers are here
+    "my-go-app/internal/api/routes"   // Assuming routes setup functions are here
+)
+
+func main() {
+    cfg := bastion.LoadConfigFromEnv()
+    cfg.EnableJWT = true
+    cfg.JWTSecret = "your-256-bit-secret-key-here-change-in-production" // Load from env!
+    cfg.EnableRateLimit = true
+    cfg.EnableSecurityHeaders = true
+    cfg.Port = 8080
+
+    app := bastion.NewApp(cfg)
+
+    app.Use(
+        middleware.RequestID(),
+        middleware.DefaultLogging(),
+        middleware.DefaultRecovery(),
+        middleware.SecurityHeaders(middleware.DefaultSecurityHeaders()),
+    )
+    if cfg.EnableRateLimit {
+        app.Use(middleware.RateLimit(cfg.RateLimitRequests, cfg.RateLimitWindow))
+    }
+
+    rootRouter := app.Router()
+    apiRouter := rootRouter.Group("/api")
+
+    // Setup authentication routes
+    routes.AuthRoutes(apiRouter, cfg) // e.g., /api/auth/login
+
+    // Setup protected API routes
+    protectedApiRouter := apiRouter.Group("/") // Group all /api routes
+    protectedApiRouter.Use(middleware.JWTAuth(cfg.JWTSecret)) // Apply JWT middleware
+
+    // Example of role-based authorization middleware
+    protectedApiRouter.Use(func(next router.Handler) router.Handler {
+        return func(ctx *router.Context) {
+            claims, ok := ctx.Get("userClaims").(*security.Claims)
+            if !ok || claims == nil {
+                response.Error(ctx, 401, "unauthorized", "Invalid or missing claims")
+                return
+            }
+            // Assuming 'role' is in claims.Extra
+            if role, ok := claims.Extra["role"].(string); ok && role == "admin" {
+                next(ctx) // User is admin, proceed
+            } else {
+                response.Error(ctx, 403, "forbidden", "Admin access required")
+            }
+        }
+    })
+
+    routes.UserRoutes(protectedApiRouter, cfg) // e.g., /api/users (now protected and role-checked)
+
+    log.Printf("Server starting on port %d", cfg.Port)
+    if err := app.RunWithGracefulShutdown(); err != nil {
+        log.Fatalf("Server failed: %v", err)
+    }
+}
+
+// internal/api/routes/auth_routes.go
+package routes
+
+import (
+    "github.com/alejandrombjs/go-bastion-lib/pkg/bastion"
+    "github.com/alejandrombjs/go-bastion-lib/pkg/router"
+    "my-go-app/internal/api/handlers"
+)
+
+func AuthRoutes(parentRouter *router.Router, cfg bastion.Config) {
+    authGroup := parentRouter.Group("/auth")
+    authGroup.POST("/login", handlers.LoginHandler(cfg.JWTSecret)) // Pass secret to handler
+}
+
+// internal/api/handlers/auth_handlers.go
+package handlers
+
+import (
+    "time"
+    "github.com/alejandrombjs/go-bastion-lib/pkg/response"
+    "github.com/alejandrombjs/go-bastion-lib/pkg/router"
+    "github.com/alejandrombjs/go-bastion-lib/pkg/security"
+)
+
+type LoginRequest struct {
+    Username string `json:"username"`
+    Password string `json:"password"`
+}
+
+func LoginHandler(jwtSecret string) router.Handler {
+    return func(ctx *router.Context) {
+        var req LoginRequest
+        if err := ctx.BindJSON(&req); err != nil {
+            response.Error(ctx, 400, "invalid_request", "Invalid JSON body")
+            return
+        }
+        // Dummy authentication
+        if req.Username == "admin" && req.Password == "adminpass" {
+            token, err := security.GenerateAccessToken(
+                req.Username,
+                30*time.Minute,
+                jwtSecret,
+                map[string]any{"role": "admin"},
+            )
+            if err != nil {
+                response.Error(ctx, 500, "internal_error", "Failed to generate token")
+                return
+            }
+            response.JSON(ctx, 200, map[string]any{
+                "access_token": token,
+                "token_type":   "bearer",
+                "expires_in":   1800, // 30 minutes
+            })
+        } else {
+            response.Error(ctx, 401, "unauthorized", "Invalid credentials")
+        }
+    }
+}
+</code></pre>
+
+            <h3 class="text-3xl font-semibold text-slate-200 mt-10 mb-4" id="senior-devs">For Senior Developers / Architects</h3>
+            <p class="text-slate-300">At this level, you're thinking about architecture, maintainability, scalability, and how <code>goBastion Lib</code> fits into a larger ecosystem. You'll focus on advanced patterns and design decisions.</p>
+            <h4 class="text-2xl font-medium text-slate-300 mt-6 mb-3">Key Focus Areas:</h4>
+            <ul class="list-disc list-inside ml-4 space-y-1 text-slate-300">
+                <li>Clean Architecture / Hexagonal Architecture principles.</li>
+                <li>Domain-Driven Design (DDD) and bounded contexts.</li>
+                <li>Dependency injection for services and repositories.</li>
+                <li>Observability (metrics, tracing with OpenTelemetry).</li>
+                <li>Designing for microservices or modular monoliths.</li>
+                <li>Extending or customizing <code>goBastion Lib</code> components.</li>
+            </ul>
+            <h4 class="text-2xl font-medium text-slate-300 mt-6 mb-3">Discussion: Where <code>goBastion Lib</code> Fits</h4>
+            <p class="text-slate-300"><code>goBastion Lib</code> serves as the <strong>delivery mechanism</strong> (or "adapter" in hexagonal architecture terms) for your HTTP API. It's the outer layer that handles network concerns, request parsing, and response serialization. Your core domain logic should remain independent of the framework.</p>
+            <pre><code class="language-text">                               +-------------------+
+                               |  Client (SPA/Mobile)|
+                               +---------+---------+
+                                         | HTTP
+                                         v
++---------------------------------------------------------------------------------+
+| API Gateway / Load Balancer (Nginx, K8s Ingress)                                |
++---------------------------------------------------------------------------------+
+                                         | HTTP
+                                         v
++---------------------------------------------------------------------------------+
+| goBastion Lib Application (HTTP Layer)                                          |
+|   - Router (Path Matching)                                                      |
+|   - Middlewares (Logging, Auth, Rate Limit, Recovery)                           |
+|   - Handlers (Input Parsing, Validation, Response Formatting)                   |
++---------------------------------------------------------------------------------+
+                                         | Calls
+                                         v
++---------------------------------------------------------------------------------+
+| Application / Service Layer (Business Logic, Domain Rules)                      |
+|   - Orchestrates operations                                                     |
+|   - Validates business rules                                                    |
+|   - Interacts with Repositories                                                 |
++---------------------------------------------------------------------------------+
+                                         | Calls
+                                         v
++---------------------------------------------------------------------------------+
+| Infrastructure / Repository Layer (Data Access, External Services)              |
+|   - Database (SQL, NoSQL)                                                       |
+|   - Message Queues (Kafka, RabbitMQ)                                            |
+|   - External APIs                                                               |
++---------------------------------------------------------------------------------+
+</code></pre>
+            <h4 class="text-2xl font-medium text-slate-300 mt-6 mb-3">Design Trade-offs</h4>
+            <ul class="list-disc list-inside ml-4 space-y-2 text-slate-300">
+                <li><strong>Explicit Middleware vs. Magic:</strong> <code>goBastion Lib</code> opts for explicit middleware registration. This means you always know exactly what's happening in your request pipeline, making debugging easier and reducing hidden complexities, even if it requires a few more lines of code.</li>
+                <li><strong>JSON-only and No Templating:</strong> This decision keeps the library lean and focused. It's a deliberate choice for modern decoupled architectures, where frontends are separate. This avoids the overhead and complexity of integrating a templating engine into the backend framework.</li>
+            </ul>
+            <h4 class="text-2xl font-medium text-slate-300 mt-6 mb-3">Extending the Library</h4>
+            <p class="text-slate-300">While <code>goBastion Lib</code> provides a solid foundation, you might need to extend its capabilities. This can involve:</p>
+            <ul class="list-disc list-inside ml-4 space-y-1 text-slate-300">
+                <li><strong>Custom Middlewares:</strong> Easily create your own <code>router.Middleware</code> functions for application-specific cross-cutting concerns.</li>
+                <li><strong>Custom Context Methods:</strong> You can embed <code>router.Context</code> into your own custom context type to add application-specific helper methods.</li>
+                <li><strong>Custom Response Helpers:</strong> Extend the <code>response</code> package with more specialized response types for your domain.</li>
+            </ul>
+        </section>
+
+        <section id="faq-troubleshooting" class="section-content space-y-6">
+            <h2 class="text-4xl font-bold text-slate-100 mb-6">FAQ & Troubleshooting</h2>
+            <p class="text-lg text-slate-300">Encountering issues is a normal part of development. This section addresses common problems and provides guidance on how to debug them.</p>
+
+            <h3 class="text-3xl font-semibold text-slate-200 mt-10 mb-4">"My route is not being hit."</h3>
+            <ul class="list-disc list-inside ml-4 space-y-1 text-slate-300">
+                <li><strong>Possible Cause:</strong> Incorrect path, method mismatch, or route order.</li>
+                <li><strong>Debugging Steps:</strong>
+                    <ol class="list-decimal list-inside ml-8 mt-1">
+                        <li>Double-check the exact path and HTTP method in your route definition and your client request.</li>
+                        <li>Ensure your route is registered on the correct router (root or group).</li>
+                        <li>If using path parameters (e.g., <code>/users/:id</code>), ensure the client URL matches the pattern.</li>
+                        <li>Add <code>fmt.Println("Handler hit!")</code> at the very beginning of your handler to confirm execution.</li>
+                        <li>Check server logs for <code>404 Not Found</code> or <code>405 Method Not Allowed</code> responses, which indicate routing issues.</li>
+                    </ol>
+                </li>
+                <li><strong>Relevant Sections:</strong> <a href="#routing-guide" class="text-blue-500 hover:underline">Routing Guide</a>.</li>
+            </ul>
+
+            <h3 class="text-3xl font-semibold text-slate-200 mt-10 mb-4">"I always get 401/403."</h3>
+            <ul class="list-disc list-inside ml-4 space-y-1 text-slate-300">
+                <li><strong>Possible Cause:</strong> Authentication (401 Unauthorized) or Authorization (403 Forbidden) failure.</li>
+                <li><strong>Debugging Steps:</strong>
+                    <ol class="list-decimal list-inside ml-8 mt-1">
+                        <li><strong>For 401:</strong>
+                            <ul class="list-disc list-inside ml-8 mt-1">
+                                <li>Is <code>JWTAuth</code> middleware applied to the route/group?</li>
+                                <li>Is the <code>Authorization: Bearer &lt;TOKEN&gt;</code> header correctly sent by the client?</li>
+                                <li>Is the JWT token valid (not expired, correctly signed)? Use a JWT debugger (e.g., jwt.io) to inspect your token.</li>
+                                <li>Is the <code>JWTSecret</code> in your <code>Config</code> identical to the one used to sign the token?</li>
+                            </ul>
+                        </li>
+                        <li><strong>For 403:</strong>
+                            <ul class="list-disc list-inside ml-8 mt-1">
+                                <li>Are you using custom authorization middleware (like the role-based example)?</li>
+                                <li>Are the claims in your JWT correct (e.g., does the user have the required role/permissions)?</li>
+                            </ul>
+                        </li>
+                    </ol>
+                </li>
+                <li><strong>Relevant Sections:</strong> <a href="#middlewares" class="text-blue-500 hover:underline">JWT Authentication</a>, <a href="#security-best-practices" class="text-blue-500 hover:underline">Security Best Practices</a>.</li>
+            </ul>
+
+            <h3 class="text-3xl font-semibold text-slate-200 mt-10 mb-4">"CSRF is failing."</h3>
+            <ul class="list-disc list-inside ml-4 space-y-1 text-slate-300">
+                <li><strong>Possible Cause:</strong> Incorrect CSRF token handling by the client or server.</li>
+                <li><strong>Debugging Steps:</strong>
+                    <ol class="list-decimal list-inside ml-8 mt-1">
+                        <li>Is <code>EnableCSRF</code> set to <code>true</code> in your <code>Config</code>?</li>
+                        <li>For GET requests, is the <code>csrf_token</code> cookie being set by the server? Inspect browser cookies.</li>
+                        <li>For POST/PUT/DELETE/PATCH requests, is the client reading the <code>csrf_token</code> cookie and sending it back in the <code>X-CSRF-Token</code> header?</li>
+                        <li>Are the cookie and header names consistent (default: <code>csrf_token</code> and <code>X-CSRF-Token</code>)?</li>
+                        <li>Check server logs for any errors related to CSRF token mismatch.</li>
+                    </ol>
+                </li>
+                <li><strong>Relevant Sections:</strong> <a href="#middlewares" class="text-blue-500 hover:underline">CSRF Protection</a>, <a href="#security-best-practices" class="text-blue-500 hover:underline">CSRF</a>.</li>
+            </ul>
+
+            <h3 class="text-3xl font-semibold text-slate-200 mt-10 mb-4">"Rate limiting triggers too often."</h3>
+            <ul class="list-disc list-inside ml-4 space-y-1 text-slate-300">
+                <li><strong>Possible Cause:</strong> Rate limit configuration is too strict or client behavior is aggressive.</li>
+                <li><strong>Debugging Steps:</strong>
+                    <ol class="list-decimal list-inside ml-8 mt-1">
+                        <li>Check <code>RateLimitRequests</code> and <code>RateLimitWindow</code> in your <code>Config</code>. Are they appropriate for your expected traffic?</li>
+                        <li>Ensure your client is not making too many requests in a short period.</li>
+                        <li>If behind a proxy, ensure the client's real IP is being forwarded correctly (<code>X-Forwarded-For</code>, <code>X-Real-IP</code>). Otherwise, the proxy's IP might be rate-limited.</li>
+                    </ol>
+                </li>
+                <li><strong>Relevant Sections:</strong> <a href="#middlewares" class="text-blue-500 hover:underline">Rate Limiting</a>, <a href="#performance-scalability" class="text-blue-500 hover:underline">Deployment Behind a Reverse Proxy</a>.</li>
+            </ul>
+
+            <h3 class="text-3xl font-semibold text-slate-200 mt-10 mb-4">"I get panic with nil pointer in context."</h3>
+            <ul class="list-disc list-inside ml-4 space-y-1 text-slate-300">
+                <li><strong>Possible Cause:</strong> Attempting to retrieve a value from <code>ctx.Get()</code> that was never set, or type assertion failure.</li>
+                <li><strong>Debugging Steps:</strong>
+                    <ol class="list-decimal list-inside ml-8 mt-1">
+                        <li>Always check the <code>ok</code> boolean returned by <code>ctx.Get()</code>, <code>ctx.GetString()</code>, <code>ctx.GetInt()</code>.</li>
+                        <li>Ensure the middleware or handler that is supposed to <code>ctx.Set()</code> the value has actually run and set it.</li>
+                        <li>Verify your type assertion is correct (e.g., <code>claims, ok := ctx.Get("userClaims").(*security.Claims)</code>).</li>
+                    </ol>
+                </li>
+                <li><strong>Relevant Sections:</strong> <a href="#router-context" class="text-blue-500 hover:underline">The Context API</a>.</li>
+            </ul>
+        </section>
+
+        <section id="changelog-roadmap" class="section-content space-y-6">
+            <h2 class="text-4xl font-bold text-slate-100 mb-6">Changelog / Roadmap</h2>
+            <p class="text-lg text-slate-300">This section outlines the development history and future direction of the <code>goBastion Lib</code>.</p>
+
+            <h3 class="text-3xl font-semibold text-slate-200 mt-10 mb-4">Changelog</h3>
+            <ul class="list-disc list-inside ml-4 space-y-2 text-slate-300">
+                <li><strong>v0.1.0 (Initial Release):</strong>
+                    <ul class="list-disc list-inside ml-8 mt-1">
+                        <li>Core <code>App</code> and <code>Config</code> abstractions.</li>
+                        <li>High-performance <code>Router</code> with grouping and path parameters.</li>
+                        <li>Comprehensive set of built-in middlewares (RequestID, Logging, Recovery, Security Headers, Rate Limiting, JWT Auth, CSRF).</li>
+                        <li>Standardized JSON response helpers.</li>
+                        <li>Graceful server shutdown.</li>
+                        <li>Basic example application.</li>
+                    </ul>
+                </li>
+                <!-- Add more versions as the library evolves -->
+            </ul>
+
+            <h3 class="text-3xl font-semibold text-slate-200 mt-10 mb-4">Roadmap (Future Ideas)</h3>
+            <p class="text-slate-300">The following are potential areas for future development and enhancements. These are ideas and not guaranteed features.</p>
+            <ul class="list-disc list-inside ml-4 space-y-2 text-slate-300">
+                <li><strong>Enhanced Observability:</strong>
+                    <ul class="list-disc list-inside ml-8 mt-1">
+                        <li>Integration with OpenTelemetry for distributed tracing and metrics.</li>
+                        <li>Built-in Prometheus metrics endpoint.</li>
+                    </ul>
+                </li>
+                <li><strong>CLI Scaffolding Tool:</strong> A command-line tool to quickly generate new <code>goBastion Lib</code> projects with a recommended structure.</li>
+                <li><strong>Validation Middleware:</strong> A more advanced, declarative input validation middleware (e.g., using Go struct tags).</li>
+                <li><strong>Database Integration Helpers:</strong> Agnostic helpers for common database patterns (e.g., transaction management, connection pooling setup).</li>
+                <li><strong>WebSockets Support:</strong> Adding support for WebSocket connections for real-time applications.</li>
+                <li><strong>Plugin System:</strong> A more formal plugin or extension system for custom middleware and features.</li>
+            </ul>
+        </section>
+
+    </main>
+
+    <script src="main.js"></script>
+</body>
+</html>

@@ -1,0 +1,43 @@
+openapi: 3.0.0
+info:
+  title: OpenAPI + Swagger Example API
+  description: A simple API demonstrating how to serve OpenAPI specification and Swagger UI with goBastion Lib.
+  version: 1.0.0
+servers:
+  - url: http://localhost:8087
+    description: Local Development Server
+
+paths:
+  /api/hello:
+    get:
+      summary: Greet a user
+      description: Returns a greeting message, optionally personalized with a name.
+      operationId: getHello
+      parameters:
+        - name: name
+          in: query
+          description: Optional name to greet
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful greeting
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Hello, World!"
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "internal_server_error"
