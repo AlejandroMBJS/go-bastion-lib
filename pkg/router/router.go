@@ -285,5 +285,3 @@ func (n *node) findRecursive(method string, segments []string, params map[string
 
     return nil
 }
-
-}
